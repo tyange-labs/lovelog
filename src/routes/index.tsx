@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import Cover from '#/components/Cover';
-import LogList from '#/components/LogList';
+import LogDrawer from '#/components/LogDrawer';
 import RsvpForm from '#/components/RsvpForm';
 import { getPosts } from '#/lib/cms';
 
@@ -21,18 +21,16 @@ function InvitationPage() {
 	return (
 		<>
 			<Cover />
-			<div className="page-rest">
-				<LogList posts={posts} />
-				<section id="rsvp" className="rule-t scroll-mt-14">
-					<header className="px-4 pt-8">
-						<h2 className="text-lg font-bold text-[var(--color-accent)]">참석 알리기</h2>
-						<p className="mt-2 text-sm opacity-80">
-							식사와 자리를 준비하는 데 참고할게요. 이름과 동반 인원만 남겨주시면 됩니다.
-						</p>
-					</header>
-					<RsvpForm />
-				</section>
-			</div>
+			<section id="rsvp" className="page-rest rule-t scroll-mt-14">
+				<header className="px-4 pt-8">
+					<h2 className="text-lg font-bold text-[var(--color-accent)]">참석 알리기</h2>
+					<p className="mt-2 text-sm opacity-80">
+						식사와 자리를 준비하는 데 참고할게요. 이름과 동반 인원만 남겨주시면 됩니다.
+					</p>
+				</header>
+				<RsvpForm />
+			</section>
+			<LogDrawer posts={posts} />
 		</>
 	);
 }

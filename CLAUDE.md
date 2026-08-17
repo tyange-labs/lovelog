@@ -39,10 +39,12 @@ bun run lint             # oxlint
 src/
   routes/            파일 기반 라우팅 (__root.tsx = 레이아웃 셸)
     index.tsx        원페이지: 커버 → 로그 목록 → RSVP
-  components/        Header, Cover, LogList, LogRow, RsvpForm
+  components/        Header, Cover, LogDrawer, LogList, LogRow, RsvpForm
   lib/
     cms.ts           tyange-cms-api 연동 (getPosts / getPost)
+    drawer.tsx       드로어 열림 상태 컨텍스트
     markdown.ts      marked 래퍼
+    photos.ts        화보 목록 상수
     rsvp.ts          RSVP 검증 + 제출 (제출은 현재 stub)
   styles.css         디자인 토큰
   routeTree.gen.ts   자동 생성 — 직접 수정 금지
@@ -72,6 +74,16 @@ src/
 
 배포 시에는 `tyange-cms-api`의 `src/main.rs` `Cors::new()` 체인에 서비스 도메인을
 `allow_origin`으로 추가해야 하며, **cms-api 배포가 프론트 배포보다 먼저**여야 한다.
+
+## 화면 구성
+
+메인 페이지는 **화보(스크롤 스냅) → RSVP** 두 덩어리다. 로그 목록은 페이지 흐름에 없고,
+헤더 오른쪽 버튼으로 여는 **사이드 드로어**(`LogDrawer`)에 담긴다. 열림 상태는
+`lib/drawer.tsx`의 컨텍스트가 들고, `__root.tsx`가 Provider를 건다.
+
+드로어 안에서 항목을 누르면 그 자리에서 본문이 펼쳐지고, **다른 항목을 누르면 앞의 것이
+닫히고 새 항목이 열린다**(한 번에 하나만). ESC와 배경 클릭으로 닫히며, 열려 있는 동안
+`html.drawer-open`으로 뒤쪽 스크롤을 잠근다.
 
 ## 데이터 흐름
 
