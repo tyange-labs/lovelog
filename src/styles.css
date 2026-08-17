@@ -98,6 +98,7 @@ body {
 
 .drawer-panel {
 	height: 100%;
+	border-top: var(--rule);
 	overflow-y: auto;
 	overscroll-behavior: contain;
 	background-color: var(--color-bg);

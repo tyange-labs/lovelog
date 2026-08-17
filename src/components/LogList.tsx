@@ -10,7 +10,7 @@ export default function LogList({ posts }: LogListProps) {
 	const [openId, setOpenId] = useState<string | null>(null);
 
 	return (
-		<section id="log" className="rule-t scroll-mt-14">
+		<section id="log" className="scroll-mt-14">
 			{posts.length === 0 && (
 				<p className="rule-b px-4 py-6 text-sm opacity-70">아직 기록이 없어요.</p>
 			)}
