@@ -1,0 +1,102 @@
+@import 'tailwindcss';
+
+@theme {
+	--color-bg: #00466d;
+	--color-accent: #f46016;
+	--color-ink: #ffffff;
+	--color-shell: #1e1e1e;
+
+	--frame-max-width: 430px;
+
+	--font-sans:
+		'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', sans-serif;
+}
+
+:root {
+	--overlay-cover: rgb(0 0 0 / 0.42);
+	--rule: 1px solid var(--color-accent);
+	--frame-width: 1080;
+	--frame-height: 1920;
+}
+
+html {
+	background-color: var(--color-shell);
+	color-scheme: dark;
+	scroll-behavior: smooth;
+	scroll-snap-type: y mandatory;
+	scroll-padding-top: 3.5rem;
+}
+
+body {
+	background-color: var(--color-shell);
+	color: var(--color-ink);
+	overflow-wrap: anywhere;
+}
+
+/* 청첩장은 모바일에서만 열린다. 넓은 화면에서도 모바일 프레임 폭으로 고정하고
+   프레임 밖은 셸 색으로 둔다. */
+.frame {
+	width: 100%;
+	max-width: var(--frame-max-width);
+	margin-inline: auto;
+	background-color: var(--color-bg);
+}
+
+@utility rule-t {
+	border-top: var(--rule);
+}
+
+@utility rule-b {
+	border-bottom: var(--rule);
+}
+
+/* 사진은 한 번 스크롤에 한 장씩만 넘어간다.
+   중첩 스크롤러 대신 페이지 자체를 스크롤 컨테이너로 쓴다 — 중첩 방식은 마지막 장에서
+   목록으로 넘어가는 스크롤 체이닝이 브라우저마다 다르게 동작한다.
+   snap-stop: always가 빠른 스크롤에도 사진을 건너뛰지 못하게 막는다.
+   사진 뒤 본문(.page-rest)도 스냅 대상이지만 뷰포트보다 크기 때문에,
+   스냅 영역이 스냅포트보다 클 때는 자유 스크롤이 허용된다는 규칙에 따라
+   목록은 mandatory 아래에서도 평범하게 스크롤된다. */
+.photo-slide {
+	scroll-snap-align: start;
+	scroll-snap-stop: always;
+}
+
+.page-rest {
+	scroll-snap-align: start;
+}
+
+.log-body {
+	line-height: 1.75;
+}
+
+.log-body p + p {
+	margin-top: 1rem;
+}
+
+.log-body a {
+	color: var(--color-accent);
+	text-decoration: underline;
+}
+
+.log-body h1,
+.log-body h2,
+.log-body h3 {
+	margin-top: 1.5rem;
+	margin-bottom: 0.5rem;
+	font-weight: 700;
+}
+
+.log-body ul,
+.log-body ol {
+	margin: 1rem 0;
+	padding-left: 1.25rem;
+	list-style: revert;
+}
+
+.log-body blockquote {
+	margin: 1rem 0;
+	border-left: 2px solid var(--color-accent);
+	padding-left: 0.75rem;
+	opacity: 0.9;
+}

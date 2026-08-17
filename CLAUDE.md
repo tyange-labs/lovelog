@@ -1,0 +1,118 @@
+# lovelog — 모바일 청첩장 + 로그
+
+## 프로젝트 개요
+
+`tyange-love`(SvelteKit 블로그)와 `bosskimwithu`(TanStack Start 청첩장)를 하나로 통합한
+프로젝트다. 두 원본은 이 프로젝트가 자리를 잡으면 아카이빙된다.
+
+결혼식은 **전시회 형식**으로 반나절 이상 진행되고 하객이 자유로운 시간대에 방문한다.
+사이트는 하객에게 공유되는 공개 페이지이면서, 부부의 로그(블로그)를 함께 담는다.
+
+**현재 단계는 와이어프레임이다.** 화면 구조·라우팅·데이터 흐름만 잡혀 있고 비주얼은
+골격 수준이다. 사진·픽셀 워드마크·인터랙션은 다음 단계에서 입힌다.
+
+## 기술 스택
+
+- **React 19 + TanStack Router** — 파일 기반 라우팅. Start/Nitro가 아니므로 **SSR이 없는
+  순수 정적 SPA**다. 빌드 산출물은 `dist/`
+- **Vite 8**, **TypeScript**, **bun**
+- **Tailwind CSS 4** (`@tailwindcss/vite`, CSS-first `@theme`)
+- **Vitest** + Testing Library
+- lint/format: **oxlint** / **oxfmt**
+- import alias: `#/*` → `./src/*` (package.json `imports` 필드)
+
+## 명령어
+
+```bash
+bun run dev              # 개발 서버 (port 3000 고정 — 아래 CORS 주석 참고)
+bun run build            # tsc --noEmit && vite build
+bun run preview          # 정적 산출물 확인
+bun run test             # vitest run
+bun run generate-routes  # tsr generate (라우트 추가/삭제 시 routeTree.gen.ts 재생성)
+bun run format           # oxfmt --write
+bun run lint             # oxlint
+```
+
+## 구조
+
+```
+src/
+  routes/            파일 기반 라우팅 (__root.tsx = 레이아웃 셸)
+    index.tsx        원페이지: 커버 → 로그 목록 → RSVP
+  components/        Header, Cover, LogList, LogRow, RsvpForm
+  lib/
+    cms.ts           tyange-cms-api 연동 (getPosts / getPost)
+    markdown.ts      marked 래퍼
+    rsvp.ts          RSVP 검증 + 제출 (제출은 현재 stub)
+  styles.css         디자인 토큰
+  routeTree.gen.ts   자동 생성 — 직접 수정 금지
+```
+
+## 백엔드
+
+`tyange-cms-api`(Rust + Poem)를 쓴다. 별도 서비스를 두지 않는다.
+
+**이미 있는 것 (그대로 사용)**
+
+- `GET /posts` — 목록
+- `GET /post/:post_id` — 본문, 아코디언 펼칠 때 호출
+
+**아직 없는 것**
+
+- `POST /public/wedding/guests` — RSVP 제출
+
+> **중요: `tyange-cms-api`에 라우트를 추가할 때는 반드시 사용자 컨펌을 먼저 받는다.**
+> 승인 전까지 `lib/rsvp.ts`의 `submitRsvp`는 stub으로 둔다. 승인 후 그 함수 본문만
+> fetch 호출로 교체하면 되고 호출부는 바뀌지 않는다.
+
+### CORS
+
+**dev 서버 포트를 3000으로 고정한 이유**: `tyange-cms-api`의 CORS 허용 목록에
+`http://localhost:3000`이 이미 들어 있다. 포트를 바꾸면 브라우저에서 CMS 호출이 전부 막힌다.
+
+배포 시에는 `tyange-cms-api`의 `src/main.rs` `Cors::new()` 체인에 서비스 도메인을
+`allow_origin`으로 추가해야 하며, **cms-api 배포가 프론트 배포보다 먼저**여야 한다.
+
+## 데이터 흐름
+
+- **목록**: 라우트 `loader`에서 `getPosts()`. `isLovelogPost` 필터(카테고리 `general` +
+  태그 `love`/`lovelog`)로 거른다. **이 필터를 제거하지 말 것** — 청첩장에 다른 블로그 글이
+  새는 걸 막는 장치다.
+- **본문**: 행을 처음 펼칠 때만 `getPost()` 호출. `LogRow.tsx`의 모듈 스코프 `bodyCache`가
+  Promise를 캐시하므로 재펼침·StrictMode 이중 실행·연타에도 요청이 한 번만 나간다.
+- 로딩/실패 상태는 **행 안에서** 표시한다. 전역 스피너를 쓰지 않는다.
+
+## 컨벤션
+
+- 라우트 파일을 추가/삭제하면 `bun run generate-routes` 실행.
+  `routeTree.gen.ts`는 절대 손으로 수정하지 않는다.
+- 색상은 하드코딩하지 말고 `styles.css`의 토큰(`--color-bg`, `--color-accent`, `--color-ink`)을
+  쓴다. 디자인 확정 시 토큰만 갈아끼우기 위함이다.
+- **모바일 전용 폭 고정**. `.frame`이 `--frame-max-width`(430px)로 전체를 묶고 가운데 정렬하며,
+  프레임 밖은 `--color-shell`이다. 넓은 화면에서도 레이아웃이 늘어나지 않는다.
+- 사진 스크롤은 페이지 자체를 스크롤 컨테이너로 쓰는 CSS 스크롤 스냅이다.
+  `html`에 `scroll-snap-type: y mandatory`, 각 사진에 `scroll-snap-stop: always`.
+  **중첩 스크롤러(`overflow-y: auto` 컨테이너)로 바꾸지 말 것** — 마지막 장에서 목록으로
+  넘어가는 스크롤 체이닝이 동작하지 않는다. 목록 전체는 `.page-rest` 하나로 묶여 있고,
+  스냅 영역이 뷰포트보다 크면 자유 스크롤이 허용된다는 규칙에 기대고 있다.
+- **다크 모드를 만들지 않는다.** 시안이 네이비 단일 테마이고, 사진 위 오버레이 대비가 깨진다.
+- **주석을 달지 않는다.** 코드는 이름과 구조로 자명하게 쓴다. 다만 "왜 이렇게 했는지"가
+  코드만으로 드러나지 않는 곳(캐시 전략, stub 경계)은 예외로 남긴다.
+- 코드 수정 후 `bun run format`과 `bun run lint`를 통과시킨다. 타입은 `bun run build`가 겸한다.
+
+## 다음 단계
+
+1. 디자인 적용 — 픽셀 워드마크 SVG 추출, 책 아이콘 (현재 둘 다 플레이스홀더)
+   - 사진은 `public/photos/photo-1..8.jpg`로 반영 완료 (긴 변 1600px, 총 2.0MB).
+     이 머신의 `sips`가 WebP를 못 써서 JPEG q80으로 변환했다. WebP로 더 줄이려면
+     `cwebp`가 필요하다.
+2. RSVP 백엔드 라우트 (컨펌 후) + `lib/rsvp.ts` stub 교체
+3. `tyange-cms`에 하객 명단 리스트 페이지
+4. 배포 — nginx server block(**SPA fallback `try_files` 필요**), certbot, GitHub Actions
+5. 익명 이미지 업로드, 경매 출품 폼
+
+## 미확정
+
+- 서비스 서브도메인
+- 결혼식 날짜·장소·시간 (현재 `Cover.tsx`에 `0000년 00월 00일 · 장소 미정` 플레이스홀더)
+- 커버 문구
