@@ -1,5 +1,17 @@
 @import 'tailwindcss';
 
+/* 워드마크 전용 픽셀 서체.
+   CC BY 3.0 — "Determination" by anonymous-1438277 (fontstruct.com/fontstructions/show/2368299)
+   라이선스상 재배포 시 원본 아카이브의 파일을 함께 둬야 해서
+   public/fonts/determination/에 license.txt, readme.txt를 같이 넣어뒀다. */
+@font-face {
+	font-family: 'Determination';
+	src: url('/fonts/determination/determination.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
 @theme {
 	--color-bg: #00466d;
 	--color-accent: #f46016;
@@ -9,7 +21,9 @@
 	--frame-max-width: 430px;
 
 	--font-sans:
-		'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', sans-serif;
+		'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui,
+		'Apple SD Gothic Neo', sans-serif;
+	--font-wordmark: 'Determination', 'Courier New', monospace;
 }
 
 :root {

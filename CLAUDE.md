@@ -101,6 +101,19 @@ src/
   Promise를 캐시하므로 재펼침·StrictMode 이중 실행·연타에도 요청이 한 번만 나간다.
 - 로딩/실패 상태는 **행 안에서** 표시한다. 전역 스피너를 쓰지 않는다.
 
+## 폰트
+
+- **본문 전체: Pretendard.** `index.html`에서 jsDelivr의 **dynamic subset** CSS를 불러온다.
+  전체 가변 폰트는 2MB, npm 패키지는 93MB/1826파일이라 레포에 넣지 않았다. dynamic subset은
+  92조각으로 나뉘어 `unicode-range`로 필요한 것만 받는다. `--font-sans`의 첫 후보는
+  패밀리명 그대로 **`Pretendard Variable`**이어야 한다.
+  CDN이 죽어도 시스템 폰트로 떨어질 뿐 사이트는 정상 동작한다.
+- **워드마크(THE LOVELOG): Determination.** `public/fonts/determination/`에 자체 호스팅하며
+  `--font-wordmark`(Tailwind `font-wordmark` 유틸)로 쓴다.
+  **CC BY 3.0이고 재배포 시 원본 아카이브 파일 동반이 조건**이라 `license.txt`,
+  `readme.txt`를 같은 폴더에 뒀다. **지우지 말 것.**
+  단일 웨이트 픽셀 서체라 `font-bold` 류를 겹치면 합성 볼드로 뭉개진다.
+
 ## 컨벤션
 
 - 라우트 파일을 추가/삭제하면 `bun run generate-routes` 실행.
