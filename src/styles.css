@@ -187,6 +187,7 @@ html.drawer-open {
 }
 
 .log-body {
+	color: var(--color-accent);
 	line-height: 1.75;
 }
 
