@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import LogDrawer from '#/components/LogDrawer';
 import PhotoStack from '#/components/PhotoStack';
+import ScrollNudge from '#/components/ScrollNudge';
 import RsvpForm from '#/components/RsvpForm';
 import { getPosts } from '#/lib/cms';
 
@@ -21,7 +22,8 @@ function InvitationPage() {
 	return (
 		<>
 			<PhotoStack />
-			<section id="rsvp" className="rule-t scroll-mt-14">
+			<ScrollNudge />
+			<section id="rsvp" className="page-rest rule-t scroll-mt-14">
 				<header className="px-4 pt-8">
 					<h2 className="text-lg font-bold text-[var(--color-accent)]">참석 알리기</h2>
 					<p className="mt-2 text-sm opacity-80">
