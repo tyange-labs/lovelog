@@ -122,6 +122,50 @@ html.drawer-open {
 	}
 }
 
+/* 아코디언 collapse: height auto는 트랜지션이 안 걸리므로 grid 1fr <-> 0fr을 쓴다.
+   패널은 항상 마운트되어 있어야 애니메이션이 걸리므로, 닫힌 상태는 inert로 접근성 트리에서 뺀다. */
+.log-panel {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 260ms ease;
+}
+
+.log-panel.is-open {
+	grid-template-rows: 1fr;
+}
+
+.log-panel-inner {
+	overflow: hidden;
+}
+
+.loading-heart {
+	animation: heart-pulse 1s ease-in-out infinite;
+}
+
+@keyframes heart-pulse {
+	0%,
+	100% {
+		opacity: 0.55;
+		transform: scale(0.9);
+	}
+
+	50% {
+		opacity: 1;
+		transform: scale(1.1);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.log-panel {
+		transition: none;
+	}
+
+	.loading-heart {
+		animation: none;
+		opacity: 0.8;
+	}
+}
+
 :focus-visible {
 	outline: 2px solid var(--color-accent);
 	outline-offset: -2px;

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { PostListItem } from '#/lib/cms';
 import { getPost } from '#/lib/cms';
 import { renderMarkdown } from '#/lib/markdown';
+import LoadingHeart from './LoadingHeart';
 
 // 펼칠 때마다 재호출하지 않도록 모듈 스코프에 캐시한다.
 // 값이 Promise라 StrictMode의 이중 실행이나 빠른 연타에서도 요청이 한 번만 나간다.
@@ -96,35 +97,37 @@ export default function LogRow({ post, isOpen, onToggle }: LogRowProps) {
 				</span>
 			</button>
 
-			{isOpen && (
-				<div id={panelId} className="px-4 pb-6 text-sm">
-					{isLoading && <p className="opacity-70">불러오는 중…</p>}
+			<div id={panelId} className={`log-panel ${isOpen ? 'is-open' : ''}`} inert={!isOpen}>
+				<div className="log-panel-inner">
+					<div className="px-4 pb-6 text-sm">
+						{isLoading && <LoadingHeart />}
 
-					{error && (
-						<div className="flex flex-col items-start gap-2">
-							<p className="opacity-80">{error}</p>
-							<button
-								type="button"
-								className="border border-[var(--color-accent)] px-3 py-1 text-[var(--color-accent)]"
-								onClick={() => {
-									setError(null);
-									setHtml(null);
-								}}
-							>
-								다시 시도
-							</button>
-						</div>
-					)}
+						{error && (
+							<div className="flex flex-col items-start gap-2">
+								<p className="opacity-80">{error}</p>
+								<button
+									type="button"
+									className="border border-[var(--color-accent)] px-3 py-1 text-[var(--color-accent)]"
+									onClick={() => {
+										setError(null);
+										setHtml(null);
+									}}
+								>
+									다시 시도
+								</button>
+							</div>
+						)}
 
-					{html && (
-						<div
-							className="log-body"
-							// eslint-disable-next-line react/no-danger
-							dangerouslySetInnerHTML={{ __html: html }}
-						/>
-					)}
+						{html && (
+							<div
+								className="log-body"
+								// eslint-disable-next-line react/no-danger
+								dangerouslySetInnerHTML={{ __html: html }}
+							/>
+						)}
+					</div>
 				</div>
-			)}
+			</div>
 		</div>
 	);
 }
