@@ -37,7 +37,6 @@ html {
 	background-color: var(--color-shell);
 	color-scheme: dark;
 	scroll-behavior: smooth;
-	scroll-snap-type: y mandatory;
 	scroll-padding-top: 3.5rem;
 }
 
@@ -62,22 +61,6 @@ body {
 
 @utility rule-b {
 	border-bottom: var(--rule);
-}
-
-/* 사진은 한 번 스크롤에 한 장씩만 넘어간다.
-   중첩 스크롤러 대신 페이지 자체를 스크롤 컨테이너로 쓴다 — 중첩 방식은 마지막 장에서
-   목록으로 넘어가는 스크롤 체이닝이 브라우저마다 다르게 동작한다.
-   snap-stop: always가 빠른 스크롤에도 사진을 건너뛰지 못하게 막는다.
-   사진 뒤 본문(.page-rest)도 스냅 대상이지만 뷰포트보다 크기 때문에,
-   스냅 영역이 스냅포트보다 클 때는 자유 스크롤이 허용된다는 규칙에 따라
-   목록은 mandatory 아래에서도 평범하게 스크롤된다. */
-.photo-slide {
-	scroll-snap-align: start;
-	scroll-snap-stop: always;
-}
-
-.page-rest {
-	scroll-snap-align: start;
 }
 
 /* 로그 목록은 헤더 오른쪽 버튼으로 여는 사이드 드로어에 담긴다.

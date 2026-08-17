@@ -20,6 +20,7 @@
 	"dependencies": {
 		"@tanstack/react-router": "^1.132.0",
 		"marked": "^18.0.5",
+		"motion": "^13.1.0",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0"
 	},
