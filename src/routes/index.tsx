@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import LogDrawer from '#/components/LogDrawer';
 import PhotoStack from '#/components/PhotoStack';
 import ScrollNudge from '#/components/ScrollNudge';
-import RsvpForm from '#/components/RsvpForm';
+import ExhibitionInfo from '#/components/ExhibitionInfo';
 import { getPosts } from '#/lib/cms';
 
 export const Route = createFileRoute('/')({
@@ -23,15 +23,7 @@ function InvitationPage() {
 		<>
 			<PhotoStack />
 			<ScrollNudge />
-			<section id="rsvp" className="page-rest rule-t">
-				<header className="px-4 pt-8">
-					<h2 className="text-lg font-bold text-[var(--color-accent)]">참석 알리기</h2>
-					<p className="mt-2 text-sm opacity-80">
-						식사와 자리를 준비하는 데 참고할게요. 이름과 동반 인원만 남겨주시면 됩니다.
-					</p>
-				</header>
-				<RsvpForm />
-			</section>
+			<ExhibitionInfo />
 			<LogDrawer posts={posts} />
 		</>
 	);

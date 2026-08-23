@@ -253,3 +253,76 @@ html.drawer-open {
 	padding-left: 0.75rem;
 	opacity: 0.9;
 }
+
+/* 전시 안내 페이지(시안 Frame 4)는 1080px 폭으로 그려졌다. --u가 시안의 1px에 해당하는
+   실제 길이라, 시안 수치를 그대로 적으면 프레임 폭이 얼마가 되든 비율이 유지된다. */
+.info-page {
+	--u: calc(min(100vw, var(--frame-max-width)) / 1080);
+	padding-inline: calc(84 * var(--u));
+	padding-top: calc(175 * var(--u));
+	padding-bottom: calc(118 * var(--u));
+	color: var(--color-accent);
+}
+
+.info-block + .info-block {
+	margin-top: calc(107 * var(--u));
+}
+
+.info-title {
+	font-size: calc(60 * var(--u));
+	font-weight: 600;
+}
+
+.info-title + * {
+	margin-top: calc(105 * var(--u));
+}
+
+.info-body {
+	font-size: calc(32 * var(--u));
+	line-height: calc(45 * var(--u));
+	text-align: justify;
+}
+
+.info-body + .info-body {
+	margin-top: calc(45 * var(--u));
+}
+
+/* 라벨 열은 시안에서 x=84, 값 열은 x=268이라 두 열의 간격이 184다. */
+.info-pairs {
+	display: grid;
+	grid-template-columns: calc(184 * var(--u)) 1fr;
+	font-size: calc(32 * var(--u));
+	line-height: calc(60 * var(--u));
+}
+
+.info-field,
+.info-button {
+	width: 100%;
+	height: calc(112 * var(--u));
+	border: calc(5 * var(--u)) solid var(--color-accent);
+	border-radius: calc(29 * var(--u));
+	background-color: transparent;
+	padding-inline: calc(30 * var(--u));
+	font-size: calc(36 * var(--u));
+	color: var(--color-accent);
+	outline-offset: calc(-10 * var(--u));
+}
+
+.info-field::placeholder {
+	color: var(--color-accent);
+	opacity: 0.45;
+}
+
+.info-button {
+	font-weight: 600;
+}
+
+.info-button:disabled {
+	opacity: 0.5;
+}
+
+.info-closing {
+	font-size: calc(32 * var(--u));
+	line-height: calc(60 * var(--u));
+	text-align: center;
+}

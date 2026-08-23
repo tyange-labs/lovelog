@@ -36,14 +36,13 @@ export default function RsvpForm() {
 
 	if (isDone) {
 		return (
-			<div className="px-4 py-10 text-center">
-				<p className="text-lg font-bold text-[var(--color-accent)]">참석 명단에 담았어요</p>
-				<p className="mt-2 text-sm opacity-80">
+			<div className="flex flex-col items-center gap-[calc(30*var(--u))]">
+				<p className="info-body text-center">
 					{name.trim()}님{companions > 0 && ` 외 ${companions}명`}, 그날 뵐게요.
 				</p>
 				<button
 					type="button"
-					className="mt-6 border border-[var(--color-accent)] px-4 py-2 text-sm text-[var(--color-accent)]"
+					className="info-button"
 					onClick={() => {
 						setName('');
 						setCompanions(0);
@@ -57,20 +56,18 @@ export default function RsvpForm() {
 	}
 
 	return (
-		<form onSubmit={handleSubmit} className="flex flex-col gap-5 px-4 py-8">
-			<label className="flex flex-col gap-2">
-				<span className="text-sm font-bold text-[var(--color-accent)]">이름</span>
-				<input
-					value={name}
-					onChange={(event) => setName(event.target.value)}
-					maxLength={NAME_MAX_LENGTH}
-					placeholder="홍길동"
-					className="border-b border-[var(--color-accent)] bg-transparent py-2 outline-none placeholder:opacity-40"
-				/>
-			</label>
+		<form onSubmit={handleSubmit} className="flex flex-col gap-[calc(30*var(--u))]">
+			<input
+				value={name}
+				onChange={(event) => setName(event.target.value)}
+				maxLength={NAME_MAX_LENGTH}
+				placeholder="성함입력"
+				aria-label="성함"
+				className="info-field"
+			/>
 
-			<label className="flex flex-col gap-2">
-				<span className="text-sm font-bold text-[var(--color-accent)]">동반 인원</span>
+			<label className="flex flex-col gap-[calc(12*var(--u))]">
+				<span className="info-body">동반 인원 (본인 제외)</span>
 				<input
 					type="number"
 					inputMode="numeric"
@@ -78,18 +75,13 @@ export default function RsvpForm() {
 					max={COMPANIONS_MAX}
 					value={companions}
 					onChange={(event) => setCompanions(Number(event.target.value))}
-					className="w-24 border-b border-[var(--color-accent)] bg-transparent py-2 outline-none"
+					className="info-field"
 				/>
-				<span className="text-xs opacity-60">본인을 제외한 인원 수</span>
 			</label>
 
-			{error && <p className="text-sm text-[var(--color-accent)]">{error}</p>}
+			{error && <p className="info-body">{error}</p>}
 
-			<button
-				type="submit"
-				disabled={isSubmitting}
-				className="mt-2 border border-[var(--color-accent)] py-3 font-bold text-[var(--color-accent)] disabled:opacity-50"
-			>
+			<button type="submit" disabled={isSubmitting} className="info-button">
 				{isSubmitting ? '보내는 중…' : '참석 알리기'}
 			</button>
 		</form>
