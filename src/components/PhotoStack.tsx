@@ -10,7 +10,8 @@ import { PHOTOS } from '#/lib/photos';
 // 위치를 스크롤 진행도의 순수 함수로 둔다. 인덱스 상태로 넘기면 페이지 스크롤을 잠가야 하고,
 // 그러면 화보와 RSVP의 경계마다 잠금·해제·복귀 예외가 끝없이 생긴다. 스크롤에만 의존하면
 // 트랙패드·터치·휠·키보드가 전부 그냥 동작하고 되돌아가기도 저절로 대칭이 된다.
-const SLIDE_HEIGHT = 'calc(100svh - 3.5rem)';
+const HEADER_HEIGHT = 56;
+const SLIDE_HEIGHT = `calc(100svh - ${HEADER_HEIGHT}px)`;
 
 interface PhotoLayerProps {
 	photo: Photo;
@@ -45,9 +46,12 @@ function PhotoLayer({ photo, index, total, progress }: PhotoLayerProps) {
 export default function PhotoStack() {
 	const trackRef = useRef<HTMLDivElement>(null);
 
+	// 진행도 0의 기준을 트랙 상단이 아니라 헤더 아래 선에 맞춘다. 스냅 지점은
+	// scroll-padding-top(= 헤더 높이)만큼 당겨져 있어서, 트랙 상단을 기준으로 두면 마커 j에서
+	// 진행도가 j/7에 조금씩 못 미치고 넘어가던 사진이 상단에 얇게 걸친 채로 멈춘다.
 	const { scrollYProgress } = useScroll({
 		target: trackRef,
-		offset: ['start start', 'end end']
+		offset: [`start ${HEADER_HEIGHT}px`, 'end end']
 	});
 
 	return (

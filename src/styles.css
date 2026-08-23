@@ -47,9 +47,17 @@ html {
 	scroll-snap-stop: always;
 }
 
-/* RSVP는 뷰포트보다 클 수 있다. 스냅 영역이 스냅포트보다 크면 자유 스크롤이 허용된다. */
+/* RSVP는 뷰포트보다 클 수 있다. 스냅 영역이 스냅포트보다 크면 자유 스크롤이 허용된다.
+   stop: always가 없으면 마지막 사진에서 세게 플릭했을 때 이 섹션의 상단 스냅 지점을 그대로
+   지나쳐 본문 중간에 멈춘다. 화보에서 넘어올 때는 항상 맨 위에서 다시 시작해야 한다.
+
+   min-height는 이 섹션의 스냅 지점을 도달 가능하게 만든다. 내용이 한 화면보다 짧으면
+   스냅 지점이 문서 끝보다 뒤에 놓여 영영 닿지 않고, mandatory 스냅이 마지막 사진으로
+   되돌려버린다. */
 .page-rest {
+	min-height: calc(100svh - 3.5rem);
 	scroll-snap-align: start;
+	scroll-snap-stop: always;
 }
 
 body {

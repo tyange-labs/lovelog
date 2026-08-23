@@ -23,7 +23,7 @@ function InvitationPage() {
 		<>
 			<PhotoStack />
 			<ScrollNudge />
-			<section id="rsvp" className="page-rest rule-t scroll-mt-14">
+			<section id="rsvp" className="page-rest rule-t">
 				<header className="px-4 pt-8">
 					<h2 className="text-lg font-bold text-[var(--color-accent)]">참석 알리기</h2>
 					<p className="mt-2 text-sm opacity-80">
