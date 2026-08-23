@@ -262,6 +262,11 @@ html.drawer-open {
 	padding-top: calc(175 * var(--u));
 	padding-bottom: calc(118 * var(--u));
 	color: var(--color-accent);
+
+	/* 한글은 어절 단위로만 끊는다. body의 overflow-wrap: anywhere가 살아 있으면
+	   keep-all을 뚫고 어절 중간에서 잘리므로 여기서 되돌린다. */
+	word-break: keep-all;
+	overflow-wrap: normal;
 }
 
 .info-block + .info-block {
@@ -280,7 +285,9 @@ html.drawer-open {
 .info-body {
 	font-size: calc(32 * var(--u));
 	line-height: calc(45 * var(--u));
-	text-align: justify;
+
+	/* 시안은 양쪽 정렬이지만 한글에서는 어절이 길어 단어 사이가 크게 벌어진다. */
+	text-align: left;
 }
 
 .info-body + .info-body {

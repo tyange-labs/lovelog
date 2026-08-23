@@ -1,7 +1,7 @@
 import RsvpForm from './RsvpForm';
 
 const INTRO_LINES = [
-	'The Love Log : 푸르른 틈새',
+	'THE LOVELOG : 푸르른 틈새',
 	'우리 사이에는 얼마나 많은 우주가 있었을까? 이 전시는 서로 다른 우주에서 모순 없이 살아온 우리가 우연히 만나 생겨난 ‘우리의‘ 우주에 대한 기록이다. Chapter 1은 각자의 우주에 살았던 우리의 모습을 같은 시간의 흐름 위에 보여준다. Chapter 2는 만남으로 인해 서로의 우주가 충돌하면서 생긴 모순과 균열을 보여주며 서로의 틈새로 스며든 새로운 우주를 보여준다. Chapter 3는 관람객들이 새로운 우주 탄생의 증인이 되는 공간이다. Chapter 3에서 관람객들은 이 전시를 단순히 관람하기에 그치는 것이 아니라 우리의 기록에 대해 동참하게 되며 새로운 틈새가 된다.'
 ];
 
@@ -93,7 +93,7 @@ export default function ExhibitionInfo() {
 
 			<div className="info-block info-closing">
 				<p>우리는 계속 사랑하고, 계속 기록합니다.</p>
-				<p className="mt-[calc(60*var(--u))]">THE LOVE LOG</p>
+				<p className="mt-[calc(60*var(--u))]">THE LOVELOG</p>
 				<p>김혜원 X 유태양</p>
 			</div>
 		</section>
