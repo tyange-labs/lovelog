@@ -36,9 +36,20 @@
 html {
 	background-color: var(--color-shell);
 	color-scheme: dark;
-	scroll-behavior: smooth;
 	scroll-snap-type: y mandatory;
 	scroll-padding-top: 3.5rem;
+}
+
+/* 화보 트랙은 sticky 뷰포트 하나뿐이라 스냅 대상이 없다. 한 화면 간격으로 보이지 않는
+   마커를 깔아 스냅 지점을 만든다. 그래야 사진이 반쯤 빠진 채로 멈추지 않는다. */
+.photo-snap {
+	scroll-snap-align: start;
+	scroll-snap-stop: always;
+}
+
+/* RSVP는 뷰포트보다 클 수 있다. 스냅 영역이 스냅포트보다 크면 자유 스크롤이 허용된다. */
+.page-rest {
+	scroll-snap-align: start;
 }
 
 body {
@@ -62,19 +73,6 @@ body {
 
 @utility rule-b {
 	border-bottom: var(--rule);
-}
-
-/* 사진은 한 번 스크롤에 한 장씩만 넘어간다. 중첩 스크롤러 대신 페이지 자체를 스크롤
-   컨테이너로 쓴다 — 중첩 방식은 마지막 장에서 아래 본문으로 넘어가는 스크롤 체이닝이
-   브라우저마다 다르게 동작한다. 사진 뒤 본문(.page-rest)도 스냅 대상이지만 뷰포트보다
-   크기 때문에, 스냅 영역이 스냅포트보다 클 때는 자유 스크롤이 허용된다는 규칙을 탄다. */
-.photo-slide {
-	scroll-snap-align: start;
-	scroll-snap-stop: always;
-}
-
-.page-rest {
-	scroll-snap-align: start;
 }
 
 /* 스크롤 넛지는 사진 슬라이드 밖의 고정 레이어다. 슬라이드 안에 두면 스크롤할 때

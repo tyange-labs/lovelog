@@ -1,57 +1,83 @@
-import { motion } from 'motion/react';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
+import type { MotionValue } from 'motion/react';
+import type { Photo } from '#/lib/photos';
 import { PHOTOS } from '#/lib/photos';
 
-// motion.dev/examples/react-scroll-triggered 패턴.
-// 카드가 아래에서 살짝 기운 채 올라와 스프링으로 자리를 잡는다.
-// 관찰은 움직이지 않는 바깥 요소가 맡고 안쪽 자식만 움직인다 —
-// 움직이는 요소가 스스로를 관찰하면 밀려난 채 가시성 조건을 못 채워 영영 잠긴다.
-const cardVariants = {
-	offscreen: { y: 220, rotate: -4, opacity: 0 },
-	onscreen: {
-		y: 0,
-		rotate: 0,
-		opacity: 1,
-		transition: { type: 'spring', bounce: 0.4, duration: 0.8 }
-	}
-} as const;
+// 사진은 처음부터 같은 자리·같은 크기로 쌓여 있고, 맨 위 것이 위로 빠지면 이미 그 자리에
+// 있던 다음 사진이 드러난다.
+//
+// 위치를 스크롤 진행도의 순수 함수로 둔다. 인덱스 상태로 넘기면 페이지 스크롤을 잠가야 하고,
+// 그러면 화보와 RSVP의 경계마다 잠금·해제·복귀 예외가 끝없이 생긴다. 스크롤에만 의존하면
+// 트랙패드·터치·휠·키보드가 전부 그냥 동작하고 되돌아가기도 저절로 대칭이 된다.
+const SLIDE_HEIGHT = 'calc(100svh - 3.5rem)';
 
-const SLIDE_CLASS = 'photo-slide relative h-[calc(100svh-3.5rem)] w-full overflow-hidden';
+interface PhotoLayerProps {
+	photo: Photo;
+	index: number;
+	total: number;
+	progress: MotionValue<number>;
+}
+
+function PhotoLayer({ photo, index, total, progress }: PhotoLayerProps) {
+	const segment = 1 / (total - 1);
+	const start = index * segment;
+
+	// 마지막 장은 빠지지 않는다. 그 자리에서 RSVP가 이어받는다.
+	const isLast = index === total - 1;
+
+	const y = useTransform(progress, [start, start + segment], ['0%', '-105%'], { clamp: true });
+
+	return (
+		<motion.div className="absolute inset-0" style={{ zIndex: total - index, y: isLast ? 0 : y }}>
+			<img
+				src={photo.src}
+				alt={photo.alt}
+				draggable={false}
+				loading={index === 0 ? 'eager' : 'lazy'}
+				decoding="async"
+				className="h-full w-full object-cover select-none"
+			/>
+		</motion.div>
+	);
+}
 
 export default function PhotoStack() {
-	const [cover, ...rest] = PHOTOS;
+	const trackRef = useRef<HTMLDivElement>(null);
+
+	const { scrollYProgress } = useScroll({
+		target: trackRef,
+		offset: ['start start', 'end end']
+	});
 
 	return (
 		<section aria-label="웨딩 화보">
-			{/* 커버는 첫 화면이라 이미 자리에 있어야 한다. 등장 애니메이션을 걸지 않는다. */}
-			<div className={SLIDE_CLASS}>
-				<img
-					src={cover.src}
-					alt={cover.alt}
-					loading="eager"
-					decoding="async"
-					className="absolute inset-0 h-full w-full object-cover"
-				/>
-			</div>
-
-			{rest.map((photo) => (
-				<motion.div
-					key={photo.src}
-					className={SLIDE_CLASS}
-					initial="offscreen"
-					whileInView="onscreen"
-					viewport={{ amount: 0.5 }}
-				>
-					<motion.div className="absolute inset-0" variants={cardVariants}>
-						<img
-							src={photo.src}
-							alt={photo.alt}
-							loading="lazy"
-							decoding="async"
-							className="h-full w-full object-cover"
+			<div
+				ref={trackRef}
+				className="relative"
+				style={{ height: `calc(${PHOTOS.length} * ${SLIDE_HEIGHT})` }}
+			>
+				<div className="sticky top-14 overflow-hidden" style={{ height: SLIDE_HEIGHT }}>
+					{PHOTOS.map((photo, index) => (
+						<PhotoLayer
+							key={photo.src}
+							photo={photo}
+							index={index}
+							total={PHOTOS.length}
+							progress={scrollYProgress}
 						/>
-					</motion.div>
-				</motion.div>
-			))}
+					))}
+				</div>
+
+				{PHOTOS.map((photo, index) => (
+					<div
+						key={`snap-${photo.src}`}
+						aria-hidden="true"
+						className="photo-snap pointer-events-none absolute inset-x-0"
+						style={{ top: `calc(${index} * ${SLIDE_HEIGHT})`, height: SLIDE_HEIGHT }}
+					/>
+				))}
+			</div>
 		</section>
 	);
 }
