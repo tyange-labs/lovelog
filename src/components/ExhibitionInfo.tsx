@@ -96,6 +96,8 @@ export default function ExhibitionInfo() {
 				<p className="mt-[calc(60*var(--u))]">THE LOVELOG</p>
 				<p>김혜원 X 유태양</p>
 			</div>
+
+			<div aria-hidden="true" className="info-snap-end" />
 		</section>
 	);
 }

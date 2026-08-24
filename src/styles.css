@@ -297,6 +297,7 @@ html.drawer-open {
 }
 
 .info-page {
+	position: relative;
 	padding-inline: calc(84 * var(--u));
 	padding-top: calc(175 * var(--u));
 	padding-bottom: calc(118 * var(--u));
@@ -306,6 +307,19 @@ html.drawer-open {
 	   keep-all을 뚫고 어절 중간에서 잘리므로 여기서 되돌린다. */
 	word-break: keep-all;
 	overflow-wrap: normal;
+}
+
+/* 문서 끝에도 스냅 지점이 있어야 한다. 없으면 맨 아래에 닿는 순간 mandatory 스냅이
+   가장 가까운 지점 -- 섹션 상단 -- 까지 통째로 되감는다. 화보 트랙에 보이지 않는 마커를
+   깔아 스냅 지점을 만든 것과 같은 방법이다. */
+.info-snap-end {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 1px;
+	scroll-snap-align: end;
+	pointer-events: none;
 }
 
 .info-block + .info-block {
