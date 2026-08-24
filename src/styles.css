@@ -98,11 +98,23 @@ body {
 	font-size: calc(28 * var(--u));
 	line-height: calc(45 * var(--u));
 	color: var(--color-accent);
+	text-shadow: 0 calc(2 * var(--u)) calc(10 * var(--u)) rgb(0 0 0 / 0.85);
 	white-space: nowrap;
 }
 
 .cover-caption > :last-child {
 	text-align: right;
+}
+
+/* 사진 8장이 캡션 아래를 차례로 지나가는데, 밝은 컷에서는 오렌지 글자가 묻힌다.
+   시안에는 없지만 어느 사진에서도 읽히려면 바닥 그늘이 필요하다.
+   sticky 뷰포트의 overflow-hidden이 아래로 넘치는 부분을 잘라준다. */
+.cover-caption::before {
+	content: '';
+	position: absolute;
+	inset: calc(-160 * var(--u)) 0 calc(-60 * var(--u)) 0;
+	z-index: -1;
+	background: linear-gradient(to top, rgb(0 0 0 / 0.62), rgb(0 0 0 / 0.52) 40%, transparent);
 }
 
 @utility rule-t {
