@@ -7,7 +7,7 @@ export const Route = createRootRoute({ component: RootLayout });
 function RootLayout() {
 	return (
 		<DrawerProvider>
-			<div className="frame min-h-svh font-sans antialiased">
+			<div className="frame min-h-lvh font-sans antialiased">
 				<Header />
 				<Outlet />
 			</div>

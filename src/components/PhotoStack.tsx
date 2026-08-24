@@ -11,7 +11,14 @@ import { PHOTOS } from '#/lib/photos';
 // 그러면 화보와 RSVP의 경계마다 잠금·해제·복귀 예외가 끝없이 생긴다. 스크롤에만 의존하면
 // 트랙패드·터치·휠·키보드가 전부 그냥 동작하고 되돌아가기도 저절로 대칭이 된다.
 const HEADER_HEIGHT = 56;
+
+// 트랙 높이와 스냅 마커는 svh로 묶는다. dvh로 두면 주소창이 접힐 때마다 마커가 통째로
+// 움직여 스크롤 도중에 스냅 지점이 흔들린다.
 const SLIDE_HEIGHT = `calc(100svh - ${HEADER_HEIGHT}px)`;
+
+// 반면 보이는 사진은 dvh를 따라가야 한다. svh는 주소창이 펼쳐진 상태의 높이라,
+// 접히고 나면 그만큼 아래가 남아 프레임 배경이 띠로 비친다.
+const VIEWPORT_HEIGHT = `calc(100dvh - ${HEADER_HEIGHT}px)`;
 
 interface PhotoLayerProps {
 	photo: Photo;
@@ -61,7 +68,7 @@ export default function PhotoStack() {
 				className="relative"
 				style={{ height: `calc(${PHOTOS.length} * ${SLIDE_HEIGHT})` }}
 			>
-				<div className="sticky top-14 overflow-hidden" style={{ height: SLIDE_HEIGHT }}>
+				<div className="sticky top-14 overflow-hidden" style={{ height: VIEWPORT_HEIGHT }}>
 					{PHOTOS.map((photo, index) => (
 						<PhotoLayer
 							key={photo.src}

@@ -55,7 +55,7 @@ html {
    스냅 지점이 문서 끝보다 뒤에 놓여 영영 닿지 않고, mandatory 스냅이 마지막 사진으로
    되돌려버린다. */
 .page-rest {
-	min-height: calc(100svh - 3.5rem);
+	min-height: calc(100lvh - 3.5rem);
 	scroll-snap-align: start;
 	scroll-snap-stop: always;
 }
