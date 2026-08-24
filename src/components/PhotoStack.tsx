@@ -39,13 +39,6 @@ function PhotoLayer({ photo, index, total, progress }: PhotoLayerProps) {
 				decoding="async"
 				className="h-full w-full object-cover select-none"
 			/>
-			{index === 0 && (
-				<p className="cover-caption">
-					<span>HYEWON</span>
-					<span>2026.09.19</span>
-					<span>TAEYANG</span>
-				</p>
-			)}
 		</motion.div>
 	);
 }
@@ -78,6 +71,12 @@ export default function PhotoStack() {
 							progress={scrollYProgress}
 						/>
 					))}
+
+					<p className="cover-caption">
+						<span>HYEWON</span>
+						<span>2026.09.19</span>
+						<span>TAEYANG</span>
+					</p>
 				</div>
 
 				{PHOTOS.map((photo, index) => (
