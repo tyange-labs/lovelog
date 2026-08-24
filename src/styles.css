@@ -69,10 +69,36 @@ body {
 /* 청첩장은 모바일에서만 열린다. 넓은 화면에서도 모바일 프레임 폭으로 고정하고
    프레임 밖은 셸 색으로 둔다. */
 .frame {
+	/* 시안은 1080px 폭으로 그려졌다. --u가 시안의 1px에 해당하는 실제 길이라,
+	   시안 수치를 그대로 적으면 프레임 폭이 얼마가 되든 비율이 유지된다. */
+	--u: calc(min(100vw, var(--frame-max-width)) / 1080);
+
 	width: 100%;
 	max-width: var(--frame-max-width);
 	margin-inline: auto;
 	background-color: var(--color-bg);
+}
+
+/* 커버 사진 하단의 이름 줄. 시안에서 사진 아래 끝으로부터 2.7% 위에 놓이고,
+   좌우 190u 안쪽에서 이름-날짜-이름이 나뉜다. */
+.cover-caption {
+	position: absolute;
+	right: 0;
+	bottom: 2.7%;
+	left: 0;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	padding-inline: calc(190 * var(--u));
+	font-family: var(--font-wordmark);
+	font-size: calc(28 * var(--u));
+	line-height: calc(45 * var(--u));
+	color: var(--color-accent);
+	white-space: nowrap;
+}
+
+.cover-caption > :last-child {
+	text-align: right;
 }
 
 @utility rule-t {
@@ -254,10 +280,7 @@ html.drawer-open {
 	opacity: 0.9;
 }
 
-/* 전시 안내 페이지(시안 Frame 4)는 1080px 폭으로 그려졌다. --u가 시안의 1px에 해당하는
-   실제 길이라, 시안 수치를 그대로 적으면 프레임 폭이 얼마가 되든 비율이 유지된다. */
 .info-page {
-	--u: calc(min(100vw, var(--frame-max-width)) / 1080);
 	padding-inline: calc(84 * var(--u));
 	padding-top: calc(175 * var(--u));
 	padding-bottom: calc(118 * var(--u));
