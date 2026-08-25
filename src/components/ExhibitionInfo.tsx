@@ -21,7 +21,7 @@ const CHAPTERS = [
 ];
 
 const DETAILS = [
-	['전시명', 'THE LOVELOG ~김혜원x유태양 결혼전시회~'],
+	['전시명', 'THE LOVELOG ~김혜원 ✕ 유태양 결혼전시회~'],
 	['전시일', '2026.09.19 (토)'],
 	['전시장소', '서울시 마포구 토정로 34']
 ];
@@ -104,7 +104,7 @@ export default function ExhibitionInfo() {
 			<div className="info-block info-closing">
 				<p>우리는 계속 사랑하고, 계속 기록합니다.</p>
 				<p className="mt-[calc(60*var(--u))]">THE LOVELOG</p>
-				<p>김혜원 X 유태양</p>
+				<p>김혜원 ✕ 유태양</p>
 			</div>
 
 			<div aria-hidden="true" className="info-snap-end" />
