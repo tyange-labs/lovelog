@@ -92,8 +92,7 @@ export default function ExhibitionInfo() {
 			</div>
 
 			<div className="info-block info-closing">
-				<p>우리는 계속 사랑하고, 계속 기록합니다.</p>
-				<p className="mt-[calc(60*var(--u))]">THE LOVELOG</p>
+				<p>THE LOVELOG</p>
 				<p>김혜원 ✕ 유태양</p>
 			</div>
 

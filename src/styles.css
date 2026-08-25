@@ -410,8 +410,7 @@ html.drawer-open {
 
 .info-footer a {
 	color: inherit;
-	text-decoration: underline;
-	text-underline-offset: calc(8 * var(--u));
+	text-decoration: none;
 }
 
 .info-closing {
