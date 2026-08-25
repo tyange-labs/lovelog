@@ -33,11 +33,6 @@ const NOTES = [
 	'11시부터 5시까지 전시장을 오픈할 예정입니다. 그 안에 자유롭게 방문하시되 오시는 시간을 미리 알려주시기 바랍니다.'
 ];
 
-const ACCOUNTS = [
-	['신부측', '토스 1234-141414 김혜원'],
-	['신랑측', '토스 1234-141414 유태양']
-];
-
 function Pairs({ rows }: { rows: string[][] }) {
 	return (
 		<dl className="info-pairs">
@@ -96,16 +91,19 @@ export default function ExhibitionInfo() {
 				<RsvpForm />
 			</div>
 
-			<div className="info-block">
-				<h2 className="info-title">계좌정보</h2>
-				<Pairs rows={ACCOUNTS} />
-			</div>
-
 			<div className="info-block info-closing">
 				<p>우리는 계속 사랑하고, 계속 기록합니다.</p>
 				<p className="mt-[calc(60*var(--u))]">THE LOVELOG</p>
 				<p>김혜원 ✕ 유태양</p>
 			</div>
+
+			<footer className="info-footer">
+				©{' '}
+				<a href="https://github.com/tyange" target="_blank" rel="noreferrer">
+					tyange
+				</a>{' '}
+				{new Date().getFullYear()}
+			</footer>
 
 			<div aria-hidden="true" className="info-snap-end" />
 		</section>
