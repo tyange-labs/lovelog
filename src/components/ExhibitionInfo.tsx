@@ -49,6 +49,14 @@ function Pairs({ rows }: { rows: string[][] }) {
 export default function ExhibitionInfo() {
 	return (
 		<section id="info" className="page-rest info-page rule-t">
+			<img
+				className="info-poster"
+				src="/poster.jpg"
+				width={1000}
+				height={1250}
+				alt="THE LOVELOG 김혜원 ✕ 유태양 결혼전시회 포스터. 2026.09.19 (토), 서울시 마포구 토정로 34."
+			/>
+
 			<div className="info-block">
 				<h2 className="info-title">전시 소개</h2>
 				<div>
