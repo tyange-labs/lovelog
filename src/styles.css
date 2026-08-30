@@ -302,6 +302,7 @@ html.drawer-open {
 	padding-top: calc(175 * var(--u));
 	padding-bottom: calc(118 * var(--u));
 	color: var(--color-accent);
+	font-weight: 500;
 
 	/* 한글은 어절 단위로만 끊는다. body의 overflow-wrap: anywhere가 살아 있으면
 	   keep-all을 뚫고 어절 중간에서 잘리므로 여기서 되돌린다. */
@@ -342,7 +343,7 @@ html.drawer-open {
 }
 
 .info-title {
-	font-size: calc(60 * var(--u));
+	font-size: calc(68 * var(--u));
 	font-weight: 600;
 }
 
@@ -351,23 +352,21 @@ html.drawer-open {
 }
 
 .info-body {
-	font-size: calc(32 * var(--u));
-	line-height: calc(45 * var(--u));
-
-	/* 시안은 양쪽 정렬이지만 한글에서는 어절이 길어 단어 사이가 크게 벌어진다. */
-	text-align: left;
+	font-size: calc(40 * var(--u));
+	line-height: calc(66 * var(--u));
+	text-align: justify;
 }
 
 .info-body + .info-body {
-	margin-top: calc(45 * var(--u));
+	margin-top: calc(60 * var(--u));
 }
 
 /* 라벨 열은 시안에서 x=84, 값 열은 x=268이라 두 열의 간격이 184다. */
 .info-pairs {
 	display: grid;
 	grid-template-columns: calc(184 * var(--u)) 1fr;
-	font-size: calc(32 * var(--u));
-	line-height: calc(60 * var(--u));
+	font-size: calc(36 * var(--u));
+	line-height: calc(68 * var(--u));
 }
 
 /* 안내 문구는 라벨을 붙일 성질이 아니라 목록으로 둔다. 줄이 넘어가면 글머리표 아래가
@@ -376,8 +375,9 @@ html.drawer-open {
 	display: grid;
 	gap: calc(30 * var(--u));
 	margin-top: calc(60 * var(--u));
-	font-size: calc(32 * var(--u));
-	line-height: calc(45 * var(--u));
+	font-size: calc(40 * var(--u));
+	line-height: calc(66 * var(--u));
+	text-align: justify;
 }
 
 .info-notes > li {
@@ -385,8 +385,12 @@ html.drawer-open {
 	text-indent: calc(-28 * var(--u));
 }
 
+/* 글머리표 뒤를 공백 문자로 띄우면 양끝맞춤이 그 공백까지 늘려 첫 글자가 밀린다.
+   고정 폭 인라인 블록으로 자리를 잡아 어느 줄에서든 간격이 같게 둔다. */
 .info-notes > li::before {
-	content: '- ';
+	content: '-';
+	display: inline-block;
+	width: calc(28 * var(--u));
 }
 
 .info-field,
@@ -397,7 +401,7 @@ html.drawer-open {
 	border-radius: calc(29 * var(--u));
 	background-color: transparent;
 	padding-inline: calc(30 * var(--u));
-	font-size: calc(36 * var(--u));
+	font-size: calc(42 * var(--u));
 	color: var(--color-accent);
 	outline-offset: calc(-10 * var(--u));
 }
@@ -417,7 +421,7 @@ html.drawer-open {
 
 .info-footer {
 	margin-top: calc(140 * var(--u));
-	font-size: calc(26 * var(--u));
+	font-size: calc(30 * var(--u));
 	line-height: calc(45 * var(--u));
 	text-align: center;
 	opacity: 0.65;
@@ -429,7 +433,7 @@ html.drawer-open {
 }
 
 .info-closing {
-	font-size: calc(32 * var(--u));
-	line-height: calc(60 * var(--u));
+	font-size: calc(40 * var(--u));
+	line-height: calc(66 * var(--u));
 	text-align: center;
 }
