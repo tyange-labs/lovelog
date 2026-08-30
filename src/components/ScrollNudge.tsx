@@ -95,12 +95,12 @@ export default function ScrollNudge() {
 				begin();
 			}}
 		>
-			<div className="flex flex-col items-center gap-1" aria-hidden="true">
+			<div className="flex flex-col items-center gap-2" aria-hidden="true">
 				{Array.from({ length: CHEVRON_COUNT }, (_, index) => (
 					<motion.svg
 						key={index}
 						viewBox="0 0 24 14"
-						width="22"
+						width="15"
 						className="fill-[var(--color-accent)]"
 						animate={{ y: [6, -6, 6], opacity: [0.25, 1, 0.25] }}
 						transition={{
