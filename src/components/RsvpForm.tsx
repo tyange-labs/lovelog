@@ -1,17 +1,28 @@
-import { useState } from 'react';
-import { COMPANIONS_MAX, NAME_MAX_LENGTH, submitRsvp, validateRsvp } from '#/lib/rsvp';
+import { useId, useState } from 'react';
+import {
+	COMPANIONS_MAX,
+	NAME_MAX_LENGTH,
+	VISIT_HOURS,
+	submitRsvp,
+	validateRsvp,
+	visitHourLabel
+} from '#/lib/rsvp';
 
 export default function RsvpForm() {
+	const nameId = useId();
 	const [name, setName] = useState('');
 	const [companions, setCompanions] = useState(0);
+	const [visitHour, setVisitHour] = useState<number | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [isDone, setIsDone] = useState(false);
+	const [done, setDone] = useState<{ name: string; companions: number; visitHour: number } | null>(
+		null
+	);
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 
-		const submission = { name, companions };
+		const submission = { name, companions, visitHour };
 		const validationError = validateRsvp(submission);
 
 		if (validationError) {
@@ -24,7 +35,7 @@ export default function RsvpForm() {
 
 		try {
 			await submitRsvp(submission);
-			setIsDone(true);
+			setDone({ name: name.trim(), companions, visitHour: visitHour as number });
 		} catch (cause: unknown) {
 			setError(
 				cause instanceof Error ? cause.message : '제출에 실패했어요. 잠시 후 다시 시도해 주세요.'
@@ -34,52 +45,102 @@ export default function RsvpForm() {
 		}
 	}
 
-	if (isDone) {
+	if (done) {
 		return (
-			<div className="flex flex-col items-center gap-[calc(30*var(--u))]">
-				<p className="info-body text-center">
-					{name.trim()}님{companions > 0 && ` 외 ${companions}명`}, 그날 뵐게요.
+			<div className="rsvp-done">
+				<p className="rsvp-done-line">
+					{done.name}님{done.companions > 0 && ` 외 ${done.companions}명`}
 				</p>
+				<p className="rsvp-done-strong">{visitHourLabel(done.visitHour)}에 뵐게요</p>
 				<button
 					type="button"
-					className="info-button"
+					className="rsvp-quiet-button"
 					onClick={() => {
 						setName('');
 						setCompanions(0);
-						setIsDone(false);
+						setVisitHour(null);
+						setDone(null);
 					}}
 				>
-					다시 작성하기
+					다른 분도 알리기
 				</button>
 			</div>
 		);
 	}
 
 	return (
-		<form onSubmit={handleSubmit} className="flex flex-col gap-[calc(30*var(--u))]">
-			<input
-				value={name}
-				onChange={(event) => setName(event.target.value)}
-				maxLength={NAME_MAX_LENGTH}
-				placeholder="성함입력"
-				aria-label="성함"
-				className="info-field"
-			/>
-
-			<label className="flex flex-col gap-[calc(12*var(--u))]">
-				<span className="info-body">동반 인원 (본인 제외)</span>
+		<form onSubmit={handleSubmit} className="rsvp-form" noValidate>
+			<div className="rsvp-group">
+				<label className="rsvp-label" htmlFor={nameId}>
+					성함
+				</label>
 				<input
-					type="number"
-					inputMode="numeric"
-					min={0}
-					max={COMPANIONS_MAX}
-					value={companions}
-					onChange={(event) => setCompanions(Number(event.target.value))}
+					id={nameId}
+					value={name}
+					onChange={(event) => setName(event.target.value)}
+					maxLength={NAME_MAX_LENGTH}
+					autoComplete="name"
+					enterKeyHint="done"
+					placeholder="김하객"
 					className="info-field"
 				/>
-			</label>
+			</div>
 
-			{error && <p className="info-body">{error}</p>}
+			<div className="rsvp-group">
+				<span className="rsvp-label">함께 오시는 분</span>
+				<div className="rsvp-stepper">
+					<button
+						type="button"
+						className="rsvp-step"
+						onClick={() => setCompanions((value) => Math.max(0, value - 1))}
+						disabled={companions === 0}
+						aria-label="함께 오시는 분 한 명 줄이기"
+					>
+						−
+					</button>
+					<output className="rsvp-count" aria-live="polite">
+						{companions === 0 ? '저 혼자예요' : `${companions}명`}
+					</output>
+					<button
+						type="button"
+						className="rsvp-step"
+						onClick={() => setCompanions((value) => Math.min(COMPANIONS_MAX, value + 1))}
+						disabled={companions === COMPANIONS_MAX}
+						aria-label="함께 오시는 분 한 명 늘리기"
+					>
+						+
+					</button>
+				</div>
+			</div>
+
+			<div className="rsvp-group">
+				<span className="rsvp-label" id={`${nameId}-visit`}>
+					방문 예정 시간
+				</span>
+				<div className="rsvp-chips" role="radiogroup" aria-labelledby={`${nameId}-visit`}>
+					{VISIT_HOURS.map((hour) => (
+						<label key={hour} className="rsvp-chip">
+							<input
+								type="radio"
+								name="visit-hour"
+								className="sr-only"
+								checked={visitHour === hour}
+								onChange={() => {
+									setVisitHour(hour);
+									setError(null);
+								}}
+							/>
+							{visitHourLabel(hour)}
+						</label>
+					))}
+				</div>
+			</div>
+
+			{error && (
+				<p className="rsvp-error" role="alert">
+					{error}
+				</p>
+			)}
 
 			<button type="submit" disabled={isSubmitting} className="info-button">
 				{isSubmitting ? '보내는 중…' : '참석 알리기'}

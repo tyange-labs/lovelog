@@ -9,7 +9,7 @@
 사이트는 하객에게 공유되는 공개 페이지이면서, 부부의 로그(블로그)를 함께 담는다.
 
 **현재 단계**: 화보·로그 드로어·RSVP 폼까지 구현됐고 디자인도 대부분 입혀졌다.
-RSVP 제출은 백엔드 라우트 승인 전이라 stub이다.
+RSVP 제출은 `tyange-cms-api`로 실제 전송된다.
 
 ## 기술 스택
 
@@ -46,7 +46,7 @@ src/
     drawer.tsx       드로어 열림 상태 컨텍스트
     markdown.ts      marked 래퍼
     photos.ts        화보 목록 상수
-    rsvp.ts          RSVP 검증 + 제출 (제출은 현재 stub)
+    rsvp.ts          RSVP 검증 + 제출, 방문 시간대 목록
   styles.css         디자인 토큰
   routeTree.gen.ts   자동 생성 — 직접 수정 금지
 ```
@@ -55,26 +55,37 @@ src/
 
 `tyange-cms-api`(Rust + Poem)를 쓴다. 별도 서비스를 두지 않는다.
 
-**이미 있는 것 (그대로 사용)**
+**쓰고 있는 라우트**
 
 - `GET /posts` — 목록
 - `GET /post/:post_id` — 본문, 아코디언 펼칠 때 호출
+- `POST /public/wedding/guests` — RSVP 제출. 인증 없는 공개 쓰기라 `main.rs`에서
+  `SizeLimit` + 분당 5회 / 시간당 30회 `RateLimit`이 걸려 있다.
+- `GET /admin/wedding/guests` — 하객 명단. `AdminOnly` + `Auth`.
 
-**아직 없는 것**
+> **중요: `tyange-cms-api`를 고칠 때는 반드시 사용자 컨펌을 먼저 받는다.**
 
-- `POST /public/wedding/guests` — RSVP 제출
+### 방문 시간대
 
-> **중요: `tyange-cms-api`에 라우트를 추가할 때는 반드시 사용자 컨펌을 먼저 받는다.**
-> 승인 전까지 `lib/rsvp.ts`의 `submitRsvp`는 stub으로 둔다. 승인 후 그 함수 본문만
-> fetch 호출로 교체하면 되고 호출부는 바뀌지 않는다.
+`wedding_guests.visit_hour`는 한 시간짜리 시간대의 **시작 시각(24시간제)** 이다.
+전시가 12시에 열고 5시에 닫으므로 12~16이 유효 범위고, 16이 마지막 칸(4-5시)이다.
+`lib/rsvp.ts`의 `VISIT_HOURS`와 `create_wedding_guest.rs`의 `VISIT_HOUR_MIN/MAX`가
+같은 범위를 각자 들고 있으니 **전시 시간이 바뀌면 두 곳을 함께 고친다.**
+시간대를 받기 전에 접수된 행은 `visit_hour`가 NULL이다.
+
+> **로컬에서 폼 제출을 시험할 때는 반드시 `.env.local`에 `VITE_CMS_API_BASE`를 적어
+> 로컬 API로 돌린다.** Vite는 셸에서 넘긴 `VITE_*` 환경변수를 읽지 않아
+> `VITE_CMS_API_BASE=... bun run dev`로는 기본값(운영)이 그대로 쓰이고,
+> 시험 제출이 운영 DB에 하객으로 쌓인다.
 
 ### CORS
 
 **dev 서버 포트를 3000으로 고정한 이유**: `tyange-cms-api`의 CORS 허용 목록에
 `http://localhost:3000`이 이미 들어 있다. 포트를 바꾸면 브라우저에서 CMS 호출이 전부 막힌다.
 
-배포 시에는 `tyange-cms-api`의 `src/main.rs` `Cors::new()` 체인에 서비스 도메인을
-`allow_origin`으로 추가해야 하며, **cms-api 배포가 프론트 배포보다 먼저**여야 한다.
+`https://lovelog.tyange.com`도 이미 허용 목록에 들어가 있다. 도메인을 바꾸면
+`src/main.rs`의 `Cors::new()` 체인에 새 도메인을 더해야 하고,
+**cms-api 배포가 프론트 배포보다 먼저**여야 한다.
 
 ## 화면 구성
 
@@ -160,14 +171,17 @@ src/
 
 1. 사진은 `public/photos/photo-1..8.jpg` (긴 변 1600px, 총 2.0MB). 이 머신의 `sips`가
    WebP를 못 써서 JPEG q80으로 변환했다. 더 줄이려면 `cwebp`가 필요하다.
-2. RSVP 백엔드 라우트 (컨펌 후) + `lib/rsvp.ts` stub 교체
-3. `tyange-cms`에 하객 명단 리스트 페이지
-4. 배포 — nginx server block(**SPA fallback `try_files` 필요**), certbot, GitHub Actions
-5. 익명 이미지 업로드, 경매 출품 폼
+2. `tyange-cms`에 하객 명단 리스트 페이지 (`visit_hour`별 집계 포함)
+3. 익명 이미지 업로드, 경매 출품 폼
+
+## 배포
+
+`https://lovelog.tyange.com`. `main` 푸시가 곧 배포다 —
+`.github/workflows/deploy.yml`이 lint → test → build → SCP → nginx 리로드까지 돌린다.
+**즉 push가 곧 운영 반영이다.**
 
 ## 미확정
 
-- 서비스 서브도메인
-- 결혼식 날짜·장소·시간 (화보에 안내 문구를 아직 넣지 않았다)
 - 커버 문구
+- 시안(전시장 안내)에 있는 평면도를 사이트에 넣을지
 - Motion은 화보 스크롤 연동에만 쓴다. 부담되면 IntersectionObserver로 대체 가능.

@@ -419,6 +419,114 @@ html.drawer-open {
 	opacity: 0.5;
 }
 
+/* RSVP 폼. 입력 항목이 셋뿐이라 한 화면에 두고, 키보드는 성함에만 필요하게 만든다.
+   인원은 −/+ 버튼, 시간대는 라디오 버튼을 칩 모양으로 씌워 한 번 눌러 고르게 한다. */
+.rsvp-form {
+	display: flex;
+	flex-direction: column;
+	gap: calc(52 * var(--u));
+}
+
+.rsvp-group {
+	display: flex;
+	flex-direction: column;
+	gap: calc(18 * var(--u));
+}
+
+.rsvp-label {
+	font-size: calc(34 * var(--u));
+	line-height: calc(48 * var(--u));
+}
+
+.rsvp-stepper {
+	display: grid;
+	grid-template-columns: calc(112 * var(--u)) 1fr calc(112 * var(--u));
+	align-items: center;
+	gap: calc(20 * var(--u));
+}
+
+.rsvp-step {
+	height: calc(112 * var(--u));
+	border: calc(5 * var(--u)) solid var(--color-accent);
+	border-radius: 50%;
+	background-color: transparent;
+	font-size: calc(48 * var(--u));
+	line-height: 1;
+	color: var(--color-accent);
+	outline-offset: calc(-10 * var(--u));
+}
+
+.rsvp-step:disabled {
+	opacity: 0.35;
+}
+
+.rsvp-count {
+	font-size: calc(40 * var(--u));
+	text-align: center;
+}
+
+.rsvp-chips {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: calc(20 * var(--u));
+}
+
+.rsvp-chip {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: calc(100 * var(--u));
+	border: calc(5 * var(--u)) solid var(--color-accent);
+	border-radius: calc(29 * var(--u));
+	font-size: calc(34 * var(--u));
+	cursor: pointer;
+}
+
+/* 고른 칸은 면을 채워 구분한다. 테두리나 글자 색만 바꾸면 오렌지 위 오렌지라 눈에 안 띈다. */
+.rsvp-chip:has(input:checked) {
+	background-color: var(--color-accent);
+	color: var(--color-bg);
+	font-weight: 600;
+}
+
+/* 라디오 입력을 sr-only로 숨겼기 때문에 포커스 테두리도 칩이 대신 그려야 한다. */
+.rsvp-chip:has(input:focus-visible) {
+	outline: calc(5 * var(--u)) solid var(--color-accent);
+	outline-offset: calc(4 * var(--u));
+}
+
+.rsvp-error {
+	font-size: calc(34 * var(--u));
+	line-height: calc(48 * var(--u));
+}
+
+.rsvp-done {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: calc(12 * var(--u));
+	text-align: center;
+}
+
+.rsvp-done-line {
+	font-size: calc(40 * var(--u));
+	line-height: calc(60 * var(--u));
+}
+
+.rsvp-done-strong {
+	font-size: calc(52 * var(--u));
+	line-height: calc(72 * var(--u));
+	font-weight: 600;
+}
+
+.rsvp-quiet-button {
+	margin-top: calc(28 * var(--u));
+	font-size: calc(34 * var(--u));
+	color: var(--color-accent);
+	text-decoration: underline;
+	text-underline-offset: calc(8 * var(--u));
+}
+
 .info-footer {
 	margin-top: calc(140 * var(--u));
 	font-size: calc(30 * var(--u));
