@@ -57,7 +57,10 @@ src/
 
 **쓰고 있는 라우트**
 
-- `GET /posts` — 목록
+- `GET /posts/search-with-tags?exclude=archive` — 로그 목록. `include`/`exclude`는 태그를
+  **하나씩만** 받고 카테고리를 가리지 않는다. `archive` 제외는 이 조건과 정확히 맞아
+  서버에 맡기지만, love/lovelog + `general` 카테고리 조건은 표현할 수 없어
+  `isLovelogPost`가 그대로 맡는다.
 - `GET /post/:post_id` — 본문, 아코디언 펼칠 때 호출
 - `POST /public/wedding/guests` — RSVP 제출. 인증 없는 공개 쓰기라 `main.rs`에서
   `SizeLimit` + 분당 5회 / 시간당 30회 `RateLimit`이 걸려 있다.
@@ -123,7 +126,11 @@ src/
 
 - **목록**: 라우트 `loader`에서 `getPosts()`. `isLovelogPost` 필터(카테고리 `general` +
   태그 `love`/`lovelog`)로 거른다. **이 필터를 제거하지 말 것** — 청첩장에 다른 블로그 글이
-  새는 걸 막는 장치다.
+  새는 걸 막는 장치다. 여기에 더해 **`archive` 태그가 붙은 글은 무조건 빠진다.**
+  lovelog 태그가 같이 붙어 있어도 마찬가지고, `archive`의 카테고리는 가리지 않는다.
+  CMS에서 태그 하나만 붙이면 청첩장에서 내려가라는 뜻이다.
+  거르는 일은 요청의 `exclude` 파라미터가 하고, `isArchivedPost`는 주소나 파라미터가
+  잘못됐을 때를 대비한 2차 방어선이라 **둘 다 두는 게 맞다.**
 - **본문**: 행을 처음 펼칠 때만 `getPost()` 호출. `LogRow.tsx`의 모듈 스코프 `bodyCache`가
   Promise를 캐시하므로 재펼침·StrictMode 이중 실행·연타에도 요청이 한 번만 나간다.
 - 로딩/실패 상태는 **행 안에서** 표시한다. 전역 스피너를 쓰지 않는다.

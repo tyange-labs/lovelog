@@ -24,4 +24,25 @@ describe('isLovelogPost', () => {
 		expect(isLovelogPost(post([{ tag: 'rust', category: 'general' }]))).toBe(false);
 		expect(isLovelogPost(post([]))).toBe(false);
 	});
+
+	it('archive 태그가 붙으면 lovelog 태그가 있어도 걸러낸다', () => {
+		expect(
+			isLovelogPost(
+				post([
+					{ tag: 'lovelog', category: 'general' },
+					{ tag: 'archive', category: 'general' }
+				])
+			)
+		).toBe(false);
+
+		// archive의 카테고리는 가리지 않는다
+		expect(
+			isLovelogPost(
+				post([
+					{ tag: 'love', category: 'general' },
+					{ tag: 'archive', category: 'dev' }
+				])
+			)
+		).toBe(false);
+	});
 });
