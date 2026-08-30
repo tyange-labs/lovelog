@@ -82,6 +82,14 @@ export default function ExhibitionInfo() {
 							))}
 						</p>
 					))}
+
+					<img
+						className="info-floorplan"
+						src="/floorplan.png"
+						width={537}
+						height={593}
+						alt="전시장 조감도. 위쪽 가운데가 입구이고, 들어서서 오른쪽이 Chapter 1 모순 없는 진행, 오른쪽 아래가 Chapter 2 푸르른 틈새로 스며든 서로의 우주, 왼쪽이 Chapter 3 다른 틈새다. 화장실은 Chapter 3 아래에 있다."
+					/>
 				</div>
 			</div>
 

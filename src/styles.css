@@ -361,6 +361,15 @@ html.drawer-open {
 	margin-top: calc(60 * var(--u));
 }
 
+/* 조감도는 배경이 투명한 선 그림이고 잉크가 --color-accent와 같은 색이라
+   본문 위에 그대로 얹힌다. 여백은 이미지에 넣지 않고 여기서 준다. */
+.info-floorplan {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin-top: calc(90 * var(--u));
+}
+
 /* 라벨 열은 시안에서 x=84, 값 열은 x=268이라 두 열의 간격이 184다. */
 .info-pairs {
 	display: grid;
