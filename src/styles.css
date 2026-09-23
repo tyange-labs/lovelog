@@ -13,9 +13,16 @@
 }
 
 @theme {
+	/* 브랜드 색. 헤더(워드마크)와 레일·링크·버튼 같은 가는 포인트에만 쓴다.
+	   본문을 읽는 면적(타임라인 카드·글 본문)에는 쓰지 않는다 — 남색 배경 위 주황
+	   글자가 넓게 깔리면 눈이 금방 피로해진다. */
 	--color-bg: #00466d;
 	--color-accent: #f46016;
-	--color-ink: #ffffff;
+
+	/* 읽는 면. 모노톤 다크로 두고 본문 대비를 확보한다. */
+	--color-paper: #242424;
+	--color-ink: #ece9e4;
+	--color-ink-muted: #8f8a83;
 	--color-shell: #1e1e1e;
 
 	--frame-max-width: 640px;
@@ -49,7 +56,7 @@ body {
 	width: 100%;
 	max-width: var(--frame-max-width);
 	margin-inline: auto;
-	background-color: var(--color-bg);
+	background-color: var(--color-paper);
 	min-height: 100lvh;
 }
 
@@ -91,7 +98,7 @@ body {
 }
 
 .log-body {
-	color: var(--color-accent);
+	color: var(--color-ink);
 	line-height: 1.75;
 }
 
@@ -154,12 +161,11 @@ body {
 	top: 3.5rem;
 	z-index: 5;
 	padding-block: 0.5rem;
-	background-color: var(--color-bg);
+	background-color: var(--color-paper);
 	font-family: var(--font-wordmark);
 	font-size: 0.8rem;
 	letter-spacing: 0.08em;
-	color: var(--color-accent);
-	opacity: 0.85;
+	color: var(--color-ink-muted);
 }
 
 .month-header > span {
@@ -205,12 +211,12 @@ body {
 	display: inline-block;
 	font-size: 0.75rem;
 	letter-spacing: 0.04em;
-	color: var(--color-accent);
-	opacity: 0.8;
+	color: var(--color-ink-muted);
 	text-decoration: none;
 }
 
 .entry-date:hover {
+	color: var(--color-ink);
 	text-decoration: underline;
 }
 
@@ -218,7 +224,7 @@ body {
 	margin-top: 0.25rem;
 	font-size: 1rem;
 	font-weight: 700;
-	color: var(--color-accent);
+	color: var(--color-ink);
 }
 
 .entry-preview {
@@ -234,7 +240,7 @@ body {
 	position: absolute;
 	inset: auto 0 0 0;
 	height: 2.5rem;
-	background: linear-gradient(to top, var(--color-bg), transparent);
+	background: linear-gradient(to top, var(--color-paper), transparent);
 	pointer-events: none;
 }
 
@@ -293,8 +299,7 @@ body {
 .gap-label {
 	grid-column: 2;
 	font-size: 0.75rem;
-	color: var(--color-accent);
-	opacity: 0.55;
+	color: var(--color-ink-muted);
 }
 
 /* --- 글 하나 보기 (/p/:id) ------------------------------------------------ */
@@ -317,9 +322,5 @@ body {
 	margin-bottom: 1.5rem;
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: var(--color-accent);
-}
-
-.post-article .entry-date {
-	opacity: 0.8;
+	color: var(--color-ink);
 }
