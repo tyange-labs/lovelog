@@ -11,6 +11,10 @@ function formatMonthDay(value: string): string {
 	return `${Number(month)}.${Number(day)}`;
 }
 
+// styles.css의 .entry-preview 트랜지션 시간과 맞춘다. 접히는 도중에 스크롤을 옮기면
+// 목표 위치가 계속 밀려 두 번 움직이는 것처럼 보이므로, 트랜지션이 끝난 뒤에 스크롤한다.
+const COLLAPSE_DURATION_MS = 320;
+
 export default function Entry(props: { post: PostListItem }) {
 	const [body, setBody] = createSignal<PostBody | null>(null);
 	const [error, setError] = createSignal<string | null>(null);
@@ -25,6 +29,25 @@ export default function Entry(props: { post: PostListItem }) {
 		const loaded = body();
 		return shortForm() && loaded !== null && loaded.length <= SHORT_FORM_LIMIT;
 	};
+
+	function toggleExpanded() {
+		if (isExpanded()) {
+			setIsExpanded(false);
+			const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			setTimeout(
+				() => {
+					rootRef?.scrollIntoView({
+						block: 'nearest',
+						behavior: prefersReducedMotion ? 'auto' : 'smooth'
+					});
+				},
+				prefersReducedMotion ? 0 : COLLAPSE_DURATION_MS
+			);
+			return;
+		}
+
+		setIsExpanded(true);
+	}
 
 	function fetchBody() {
 		if (body() || isLoading()) {
@@ -107,9 +130,14 @@ export default function Entry(props: { post: PostListItem }) {
 								// eslint-disable-next-line solid/no-innerhtml
 								innerHTML={loaded().html}
 							/>
-							<Show when={!isCompact() && !isExpanded()}>
-								<button type="button" class="entry-expand" onClick={() => setIsExpanded(true)}>
-									펼쳐 읽기
+							<Show when={!isCompact()}>
+								<button
+									type="button"
+									class="entry-expand"
+									aria-expanded={isExpanded()}
+									onClick={toggleExpanded}
+								>
+									{isExpanded() ? '접기' : '펼쳐 읽기'}
 								</button>
 							</Show>
 

@@ -248,7 +248,9 @@ body {
 }
 
 .entry-expand {
-	margin-top: 0.5rem;
+	display: inline-block;
+	margin-top: 0.25rem;
+	padding-block: 0.375rem;
 	font-size: 0.8125rem;
 	color: var(--color-accent);
 	text-decoration: underline;
