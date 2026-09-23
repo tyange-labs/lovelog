@@ -21,6 +21,7 @@ export default function Entry(props: { post: PostListItem }) {
 	const [isLoading, setIsLoading] = createSignal(false);
 	const [isExpanded, setIsExpanded] = createSignal(false);
 	let rootRef: HTMLElement | undefined;
+	let previewRef: HTMLDivElement | undefined;
 
 	const shortForm = () => isShortForm(props.post);
 	// 짧은 글로 쓰였고 실제로도 200자 이내면 접지 않고 전부 보여준다.
@@ -30,10 +31,22 @@ export default function Entry(props: { post: PostListItem }) {
 		return shortForm() && loaded !== null && loaded.length <= SHORT_FORM_LIMIT;
 	};
 
+	// max-height를 넉넉한 고정값(예: 6000px)으로 두면 접을 때 실제 높이까지 내려오는 동안
+	// 화면에 변화가 없어 한 박자 늦게 반응한다. 실제 높이(scrollHeight)를 재서 그 값에서
+	// 출발하고, 다 펼친 뒤에는 none으로 풀어 늦게 로드되는 이미지가 잘리지 않게 한다.
 	function toggleExpanded() {
+		const el = previewRef;
+		if (!el) {
+			return;
+		}
+
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 		if (isExpanded()) {
+			el.style.maxHeight = `${el.scrollHeight}px`;
+			el.getBoundingClientRect();
+			el.style.maxHeight = '';
 			setIsExpanded(false);
-			const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 			setTimeout(
 				() => {
 					rootRef?.scrollIntoView({
@@ -46,6 +59,7 @@ export default function Entry(props: { post: PostListItem }) {
 			return;
 		}
 
+		el.style.maxHeight = prefersReducedMotion ? 'none' : `${el.scrollHeight}px`;
 		setIsExpanded(true);
 	}
 
@@ -125,6 +139,14 @@ export default function Entry(props: { post: PostListItem }) {
 					{(loaded) => (
 						<>
 							<div
+								ref={(el) => {
+									previewRef = el;
+								}}
+								onTransitionEnd={(event) => {
+									if (event.propertyName === 'max-height' && isExpanded() && previewRef) {
+										previewRef.style.maxHeight = 'none';
+									}
+								}}
 								class="entry-preview log-body"
 								classList={{ 'is-expanded': isCompact() || isExpanded() }}
 								// eslint-disable-next-line solid/no-innerhtml

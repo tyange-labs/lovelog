@@ -237,10 +237,6 @@ body {
 	pointer-events: none;
 }
 
-.entry-preview.is-expanded {
-	max-height: 6000px;
-}
-
 @media (prefers-reduced-motion: reduce) {
 	.entry-preview {
 		transition: none;
