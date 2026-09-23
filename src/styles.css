@@ -220,13 +220,13 @@ body {
 	text-decoration: underline;
 }
 
-/* 긴 글은 4줄에서 말줄임표로 자르고, 나머지는 글 페이지(/p/:id)에서 읽는다.
+/* 긴 글은 2줄에서 말줄임표로 자르고, 나머지는 글 페이지(/p/:id)에서 읽는다.
    line-clamp는 본문 안의 여러 문단에 걸쳐서도 줄을 센다. */
 .entry-preview {
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 4;
-	line-clamp: 4;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
 	overflow: hidden;
 	margin-top: 0.5rem;
 }
