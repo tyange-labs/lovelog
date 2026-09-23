@@ -3,7 +3,7 @@ import { A } from '@solidjs/router';
 import type { PostListItem } from '#/lib/cms';
 import { loadBody } from '#/lib/body';
 import type { PostBody } from '#/lib/body';
-import { dayNumber, isShortForm, SHORT_FORM_LIMIT } from '#/lib/timeline';
+import { isShortForm, SHORT_FORM_LIMIT } from '#/lib/timeline';
 import LoadingHeart from './LoadingHeart';
 
 function formatMonthDay(value: string): string {
@@ -75,7 +75,7 @@ export default function Entry(props: { post: PostListItem }) {
 
 			<div class="entry-main">
 				<A href={`/p/${props.post.post_id}`} class="entry-date">
-					D+{dayNumber(props.post.published_at)} · {formatMonthDay(props.post.published_at)}
+					{formatMonthDay(props.post.published_at)}
 				</A>
 
 				<Show when={!isCompact()}>

@@ -1,21 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { buildTimelineRows, dayNumber, gapDays, isShortForm, plainLength } from './timeline';
+import { buildTimelineRows, gapDays, isShortForm, plainLength } from './timeline';
 import type { PostListItem } from './cms';
 
 function post(published_at: string, post_id = published_at): PostListItem {
 	return { post_id, title: 't', description: '', published_at, tags: [], status: 'published' };
 }
-
-describe('dayNumber', () => {
-	it('day one 자체는 D+1이다', () => {
-		expect(dayNumber('2025-12-17', '2025-12-17')).toBe(1);
-	});
-
-	it('그 이후 날짜는 지난 날수만큼 더한다', () => {
-		expect(dayNumber('2025-12-18', '2025-12-17')).toBe(2);
-		expect(dayNumber('2026-08-04', '2025-12-17')).toBe(231);
-	});
-});
 
 describe('gapDays', () => {
 	it('두 글 사이의 일수를 센다', () => {

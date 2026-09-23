@@ -1,8 +1,5 @@
 import type { PostListItem } from './cms';
 
-// 첫 기록("day one")의 날짜. dayNumber에서 이 날을 D+1로 센다.
-export const DAY_ONE = '2025-12-17';
-
 // 이 날짜(포함) 이후에 쓰인 글은 200자 규칙이 적용되는 짧은 글로 본다.
 // 실제 글자 수 제한은 tyange-cms 쪽에서 강제하고, 여기서는 표시 방식만 가른다.
 export const SHORT_FORM_SINCE = '2026-09-23';
@@ -24,11 +21,6 @@ function monthOf(publishedAt: string): string {
 
 export function isShortForm(post: PostListItem, since: string = SHORT_FORM_SINCE): boolean {
 	return post.published_at >= since;
-}
-
-// day one 자체는 D+1이다.
-export function dayNumber(publishedAt: string, dayOne: string = DAY_ONE): number {
-	return toUtcDays(publishedAt) - toUtcDays(dayOne) + 1;
 }
 
 // 인접한 두 글(next가 최신, prev가 더 오래된 글) 사이의 일수 차이.

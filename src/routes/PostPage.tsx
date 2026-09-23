@@ -2,7 +2,6 @@ import { createResource, Show } from 'solid-js';
 import { A, useParams } from '@solidjs/router';
 import { getPost } from '#/lib/cms';
 import { renderMarkdown } from '#/lib/markdown';
-import { dayNumber } from '#/lib/timeline';
 import LoadingHeart from '#/components/LoadingHeart';
 
 export default function PostPage() {
@@ -32,9 +31,7 @@ export default function PostPage() {
 			<Show when={post()}>
 				{(loaded) => (
 					<article class="post-article">
-						<p class="entry-date">
-							D+{dayNumber(loaded().published_at)} · {loaded().published_at}
-						</p>
+						<p class="entry-date">{loaded().published_at}</p>
 						<h1 class="post-title">{loaded().title}</h1>
 						<div
 							class="log-body"

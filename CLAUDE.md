@@ -53,8 +53,7 @@ src/
   lib/
     cms.ts            tyange-cms-api 연동 (getPosts / getPost / isLovelogPost)
     body.ts           글 본문 지연 로드 + 캐시 (loadBody)
-    timeline.ts        순수 함수: dayNumber, gapDays, buildTimelineRows,
-                       isShortForm, plainLength
+    timeline.ts        순수 함수: gapDays, buildTimelineRows, isShortForm, plainLength
     markdown.ts        marked 래퍼
   styles.css          디자인 토큰 + 타임라인 레일 스타일
 ```
@@ -102,8 +101,8 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 아바타·좋아요
   하단 그라디언트 페이드로 미리보기를 보여주고, "펼쳐 읽기"를 누르면 `max-height`
   트랜지션으로 펼쳐진다. **동시에 여러 글을 펼칠 수 있다** — 한 번에 하나만 열리던
   구 드로어 시절의 제약은 없앴다.
-- 날짜(`D+N · M.D`)를 누르면 `/p/:id` 퍼머링크로 이동한다. `dayNumber`의 기준일
-  `DAY_ONE`(2025-12-17, 첫 글 "day one")은 day one 자체를 D+1로 센다.
+- 날짜(`M.D`)를 누르면 `/p/:id` 퍼머링크로 이동한다. D+N(디데이) 표시는 넣지 않는다 —
+  결혼 전시 카운트다운의 흔적이라 로그 자체와는 관계가 없다는 판단으로 뺐다.
 
 ## 폰트
 
