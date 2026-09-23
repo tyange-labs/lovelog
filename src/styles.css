@@ -220,30 +220,24 @@ body {
 	text-decoration: underline;
 }
 
+/* 긴 글은 4줄에서 말줄임표로 자르고, 나머지는 글 페이지(/p/:id)에서 읽는다.
+   line-clamp는 본문 안의 여러 문단에 걸쳐서도 줄을 센다. */
 .entry-preview {
-	position: relative;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 4;
+	line-clamp: 4;
 	overflow: hidden;
-	max-height: 7.5rem;
 	margin-top: 0.5rem;
-	transition: max-height 320ms ease;
 }
 
-.entry-preview:not(.is-expanded)::after {
-	content: '';
-	position: absolute;
-	inset: auto 0 0 0;
-	height: 2.5rem;
-	background: linear-gradient(to top, var(--color-paper), transparent);
-	pointer-events: none;
+/* 미리보기 안에서 이미지가 한 화면을 다 차지하지 않게 누른다. */
+.entry-preview img {
+	max-height: 12rem;
+	object-fit: cover;
 }
 
-@media (prefers-reduced-motion: reduce) {
-	.entry-preview {
-		transition: none;
-	}
-}
-
-.entry-expand {
+.entry-more {
 	display: inline-block;
 	margin-top: 0.25rem;
 	padding-block: 0.375rem;
@@ -253,16 +247,14 @@ body {
 	text-underline-offset: 0.25rem;
 }
 
-/* 짧은 글(200자 규칙 이후)은 제목·미리보기 페이드 없이 본문을 바로 크게 보여준다. */
+/* 짧은 글(200자 규칙 이후)은 자르지 않고 본문을 바로 크게 보여준다. */
 .entry-compact .entry-preview {
-	max-height: none;
+	display: block;
+	-webkit-line-clamp: none;
+	line-clamp: none;
 	margin-top: 0.375rem;
 	font-size: 1.0625rem;
 	line-height: 1.7;
-}
-
-.entry-compact .entry-preview::after {
-	display: none;
 }
 
 .entry-caption {
@@ -314,10 +306,6 @@ body {
 	text-decoration: underline;
 }
 
-.post-title {
-	margin-top: 0.5rem;
-	margin-bottom: 1.5rem;
-	font-size: 1.5rem;
-	font-weight: 700;
-	color: var(--color-ink);
+.post-body {
+	margin-top: 0.75rem;
 }

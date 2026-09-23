@@ -60,6 +60,20 @@ export async function getPosts(): Promise<PostListItem[]> {
 	return posts.filter(isLovelogPost);
 }
 
+// 목록은 한 번만 받아 모듈 스코프에 둔다. 글 페이지에서 돌아왔을 때 값을 동기로 돌려줘야
+// 타임라인이 로딩 상태를 거치지 않고 바로 그려지고, 스크롤 복원이 제자리를 찾는다.
+let postsCache: PostListItem[] | undefined;
+
+export function getPostsCached(): PostListItem[] | Promise<PostListItem[]> {
+	if (postsCache) {
+		return postsCache;
+	}
+	return getPosts().then((posts) => {
+		postsCache = posts;
+		return posts;
+	});
+}
+
 export async function getPost(postId: string): Promise<Post | null> {
 	const res = await fetch(`${CMS_API_BASE}/post/${postId}`);
 	if (res.status === 404) {

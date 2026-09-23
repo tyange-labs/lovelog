@@ -46,13 +46,14 @@ src/
     PostPage.tsx      /p/:id — 글 하나 퍼머링크(공유용)
   components/
     Header.tsx        sticky 워드마크
-    Entry.tsx          타임라인 한 행 — 지연 로드 + 미리보기/펼치기
+    Entry.tsx          타임라인 한 행 — 지연 로드 + 4줄 미리보기 + 더보기(글 페이지로 이동)
     MonthHeader.tsx    월 구분 sticky 헤더
     GapMarker.tsx      글 사이 간격 표시("N일 뒤")
     LoadingHeart.tsx   픽셀 하트 로딩 인디케이터
   lib/
-    cms.ts            tyange-cms-api 연동 (getPosts / getPost / isLovelogPost)
-    body.ts           글 본문 지연 로드 + 캐시 (loadBody)
+    cms.ts            tyange-cms-api 연동 (getPosts / getPostsCached / getPost / isLovelogPost)
+    body.ts           글 본문 지연 로드 + 캐시 (loadBody / peekBody)
+    navigation.ts     타임라인에서 글 페이지로 들어왔는지 기억 (돌아가기 링크용)
     timeline.ts        순수 함수: gapDays, buildTimelineRows, isShortForm, plainLength
     markdown.ts        marked 래퍼
   styles.css          디자인 토큰 + 타임라인 레일 스타일
@@ -94,26 +95,28 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 아바타·좋아요
   캐시에서 지워 "다시 시도"가 재요청하게 한다.
 - **짧은 글 판정은 두 조건을 다 봐야 한다**: `isShortForm`(작성일이 `SHORT_FORM_SINCE`
   이후)이면서 실제 본문도 `SHORT_FORM_LIMIT`(200자) 이내여야 `entry-compact`로 렌더링된다.
-  기준일 이후 글이라도 길게 쓰였다면 레거시 글과 같은 미리보기+펼치기로 처리한다 — 실제
+  기준일 이후 글이라도 길게 쓰였다면 레거시 글과 같은 미리보기+더보기로 처리한다 — 실제
   글자 수 제한이 없는 이 리포 쪽의 방어선이다. 글자 수는 `plainLength`가 마크다운 문법을
   걷어내고 센다(완벽한 파서는 아니다).
-- 레거시 글(기준일 이전)은 `.entry-preview`가 기본 `max-height: 7.5rem`(4줄 안팎) +
-  하단 그라디언트 페이드로 미리보기를 보여주고, 버튼을 누르면 `max-height` 트랜지션으로
-  펼쳐진다. 버튼은 "펼쳐 읽기"/"접기"를 토글하는 하나뿐이다 — 펼친 뒤 다시 접을 방법이
-  없었던 초기 실수를 고친 것. 접을 때는 `COLLAPSE_DURATION_MS`(트랜지션 시간과 맞춘 320ms)
-  뒤에 `rootRef.scrollIntoView({ block: 'nearest' })`로 그 글을 다시 화면 안에 넣는다 —
-  안 그러면 긴 글을 접었을 때 스크롤 위치가 엉뚱한 곳(다음 글들 중간)에 남는다.
-  **펼친 상태의 `max-height`를 큰 고정값(예: 6000px)으로 되돌리지 말 것** — 접을 때 실제
-  높이까지 내려오는 동안 화면이 멈춰 있어 한 박자 늦게 반응한다. `toggleExpanded`가
-  `scrollHeight`를 재서 인라인으로 넣고, 펼침이 끝나면(`transitionend`) `none`으로 풀어
-  늦게 뜨는 이미지가 잘리지 않게 한다.
-  **동시에 여러 글을 펼칠 수 있다** — 한 번에 하나만 열리던 구 드로어 시절의 제약은 없앴다.
+- **타임라인 안에서 펼치기/접기를 하지 않는다.** 긴 글은 `.entry-preview`의
+  `line-clamp: 4`로 말줄임표까지만 보여주고, "더보기"를 누르면 `/p/:id` 글 페이지로 이동한다.
+  예전엔 제자리에서 펼치고 접었지만, 접을 때 미리보기 높이로 돌아가며 화면이 튕기는 문제가
+  남아 라우트 이동으로 바꿨다 — 제자리 펼침으로 되돌리지 말 것.
+  "더보기"는 줄 수 추정이 아니라 실제로 잘렸을 때만 뜬다(`ResizeObserver`로
+  `scrollHeight > clientHeight` 확인). 미리보기 안의 이미지는 `max-height: 12rem`으로 누른다.
+- **글 페이지에서 돌아오면 보던 자리로 돌아와야 한다.** `<Router scrollRestoration>`이
+  스크롤 이벤트로 위치를 기록했다가 뒤로 가기 때 한 번 복원한다. 복원 시점에 문서가 이미
+  원래 높이여야 하므로, 목록은 `getPostsCached`가 두 번째부터 **동기로** 돌려주고(리소스가
+  로딩을 거치지 않음), 본문은 `peekBody`로 이미 받은 것을 **동기로** 꺼내 행을 처음부터 채운다.
+  둘 중 하나라도 비동기로 되돌리면 복원 시점에 문서가 짧아 위치가 잘린다.
+  글 페이지의 "← 타임라인으로"는 타임라인에서 들어온 경우(`navigation.ts`)에만
+  `history.back()`으로 동작해 같은 복원을 탄다. 공유 링크로 바로 들어온 경우엔 그냥 `/`로 간다.
 - 날짜(`M.D`)를 누르면 `/p/:id` 퍼머링크로 이동한다. D+N(디데이) 표시는 넣지 않는다 —
   결혼 전시 카운트다운의 흔적이라 로그 자체와는 관계가 없다는 판단으로 뺐다.
 - **제목은 위에 내세우지 않는다.** 레거시 글이든 짧은 글이든 똑같이, 제목은(있으면, 빈
   문자열이 아니면) 본문 뒤에 `entry-caption`("— 제목")으로 조용히 붙는다. 캡션은
-  `.entry-preview` **안**, 본문 맨 끝에 있어서 긴 글은 접힌 상태에선 잘려 안 보이고
-  펼쳐야 보인다. 펼치기/접기 버튼은 그 아래에 온다. 짧은 글(기준일
+  `.entry-preview` **안**, 본문 맨 끝에 있어서 긴 글은 타임라인에선 잘려 안 보이고
+  글 페이지에서만 보인다. 글 페이지도 헤딩 없이 본문 끝에 같은 캡션을 둔다. 짧은 글(기준일
   이후)은 제목이 아예 없는 트위터식 글일 수 있어서 생긴 규칙인데, 기존 레거시 글에도
   똑같이 적용해 포맷을 통일했다 — 예전엔 레거시 글만 `entry-title`로 맨 위에 헤딩을
   냈지만 지금은 안 쓴다.

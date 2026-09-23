@@ -15,7 +15,7 @@ function RootLayout(props: { children?: JSX.Element }) {
 
 export default function App() {
 	return (
-		<Router root={RootLayout}>
+		<Router root={RootLayout} scrollRestoration>
 			<Route path="/" component={Timeline} />
 			<Route path="/p/:id" component={PostPage} />
 			<Route path="*" component={Timeline} />

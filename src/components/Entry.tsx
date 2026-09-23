@@ -1,9 +1,10 @@
 import { createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { A } from '@solidjs/router';
 import type { PostListItem } from '#/lib/cms';
-import { loadBody } from '#/lib/body';
+import { loadBody, peekBody } from '#/lib/body';
 import type { PostBody } from '#/lib/body';
 import { isShortForm, SHORT_FORM_LIMIT } from '#/lib/timeline';
+import { markFromTimeline } from '#/lib/navigation';
 import LoadingHeart from './LoadingHeart';
 
 function formatMonthDay(value: string): string {
@@ -11,57 +12,21 @@ function formatMonthDay(value: string): string {
 	return `${Number(month)}.${Number(day)}`;
 }
 
-// styles.css의 .entry-preview 트랜지션 시간과 맞춘다. 접히는 도중에 스크롤을 옮기면
-// 목표 위치가 계속 밀려 두 번 움직이는 것처럼 보이므로, 트랜지션이 끝난 뒤에 스크롤한다.
-const COLLAPSE_DURATION_MS = 320;
-
 export default function Entry(props: { post: PostListItem }) {
-	const [body, setBody] = createSignal<PostBody | null>(null);
+	const [body, setBody] = createSignal<PostBody | null>(peekBody(props.post.post_id) ?? null);
 	const [error, setError] = createSignal<string | null>(null);
 	const [isLoading, setIsLoading] = createSignal(false);
-	const [isExpanded, setIsExpanded] = createSignal(false);
+	const [isClamped, setIsClamped] = createSignal(false);
 	let rootRef: HTMLElement | undefined;
-	let previewRef: HTMLDivElement | undefined;
 
+	const postHref = () => `/p/${props.post.post_id}`;
 	const shortForm = () => isShortForm(props.post);
-	// 짧은 글로 쓰였고 실제로도 200자 이내면 접지 않고 전부 보여준다.
-	// 기준일 이후 글이라도 길게 쓰였다면 레거시 글과 같은 방식(미리보기 + 펼치기)으로 처리한다.
+	// 짧은 글로 쓰였고 실제로도 200자 이내면 자르지 않고 전부 보여준다.
+	// 기준일 이후 글이라도 길게 쓰였다면 레거시 글과 같은 방식(미리보기 + 더보기)으로 처리한다.
 	const isCompact = () => {
 		const loaded = body();
 		return shortForm() && loaded !== null && loaded.length <= SHORT_FORM_LIMIT;
 	};
-
-	// max-height를 넉넉한 고정값(예: 6000px)으로 두면 접을 때 실제 높이까지 내려오는 동안
-	// 화면에 변화가 없어 한 박자 늦게 반응한다. 실제 높이(scrollHeight)를 재서 그 값에서
-	// 출발하고, 다 펼친 뒤에는 none으로 풀어 늦게 로드되는 이미지가 잘리지 않게 한다.
-	function toggleExpanded() {
-		const el = previewRef;
-		if (!el) {
-			return;
-		}
-
-		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-		if (isExpanded()) {
-			el.style.maxHeight = `${el.scrollHeight}px`;
-			el.getBoundingClientRect();
-			el.style.maxHeight = '';
-			setIsExpanded(false);
-			setTimeout(
-				() => {
-					rootRef?.scrollIntoView({
-						block: 'nearest',
-						behavior: prefersReducedMotion ? 'auto' : 'smooth'
-					});
-				},
-				prefersReducedMotion ? 0 : COLLAPSE_DURATION_MS
-			);
-			return;
-		}
-
-		el.style.maxHeight = prefersReducedMotion ? 'none' : `${el.scrollHeight}px`;
-		setIsExpanded(true);
-	}
 
 	function fetchBody() {
 		if (body() || isLoading()) {
@@ -80,7 +45,7 @@ export default function Entry(props: { post: PostListItem }) {
 	}
 
 	onMount(() => {
-		if (!rootRef) {
+		if (!rootRef || body()) {
 			return;
 		}
 
@@ -111,7 +76,7 @@ export default function Entry(props: { post: PostListItem }) {
 			</div>
 
 			<div class="entry-main">
-				<A href={`/p/${props.post.post_id}`} class="entry-date">
+				<A href={postHref()} class="entry-date" onClick={markFromTimeline}>
 					{formatMonthDay(props.post.published_at)}
 				</A>
 
@@ -138,19 +103,18 @@ export default function Entry(props: { post: PostListItem }) {
 				<Show when={body()}>
 					{(loaded) => (
 						<>
+							{/* 제목 캡션은 미리보기 안, 본문 맨 끝에 둔다 — 긴 글은 잘려서 글 페이지에서만 보인다.
+							잘렸는지는 줄 수가 아니라 실제 넘침(scrollHeight)으로 판단해 "더보기"를 띄운다. */}
 							<div
 								ref={(el) => {
-									previewRef = el;
-								}}
-								onTransitionEnd={(event) => {
-									if (event.propertyName === 'max-height' && isExpanded() && previewRef) {
-										previewRef.style.maxHeight = 'none';
-									}
+									const observer = new ResizeObserver(() => {
+										setIsClamped(el.scrollHeight - el.clientHeight > 1);
+									});
+									observer.observe(el);
+									onCleanup(() => observer.disconnect());
 								}}
 								class="entry-preview"
-								classList={{ 'is-expanded': isCompact() || isExpanded() }}
 							>
-								{/* 제목 캡션은 미리보기 안, 본문 맨 끝에 둔다 — 긴 글은 펼쳐야만 보인다. */}
 								<div
 									class="log-body"
 									// eslint-disable-next-line solid/no-innerhtml
@@ -161,15 +125,10 @@ export default function Entry(props: { post: PostListItem }) {
 								</Show>
 							</div>
 
-							<Show when={!isCompact()}>
-								<button
-									type="button"
-									class="entry-expand"
-									aria-expanded={isExpanded()}
-									onClick={toggleExpanded}
-								>
-									{isExpanded() ? '접기' : '펼쳐 읽기'}
-								</button>
+							<Show when={!isCompact() && isClamped()}>
+								<A href={postHref()} class="entry-more" onClick={markFromTimeline}>
+									더보기
+								</A>
 							</Show>
 						</>
 					)}

@@ -2,6 +2,7 @@ import { createResource, Show } from 'solid-js';
 import { A, useParams } from '@solidjs/router';
 import { getPost } from '#/lib/cms';
 import { renderMarkdown } from '#/lib/markdown';
+import { didComeFromTimeline } from '#/lib/navigation';
 import LoadingHeart from '#/components/LoadingHeart';
 
 export default function PostPage() {
@@ -10,7 +11,16 @@ export default function PostPage() {
 
 	return (
 		<section class="px-4 py-8">
-			<A href="/" class="post-back">
+			<A
+				href="/"
+				class="post-back"
+				onClick={(event) => {
+					if (didComeFromTimeline()) {
+						event.preventDefault();
+						window.history.back();
+					}
+				}}
+			>
 				← 타임라인으로
 			</A>
 
@@ -32,14 +42,14 @@ export default function PostPage() {
 				{(loaded) => (
 					<article class="post-article">
 						<p class="entry-date">{loaded().published_at}</p>
-						<Show when={loaded().title.trim().length > 0}>
-							<h1 class="post-title">{loaded().title}</h1>
-						</Show>
 						<div
-							class="log-body"
+							class="log-body post-body"
 							// eslint-disable-next-line solid/no-innerhtml
 							innerHTML={renderMarkdown(loaded().content)}
 						/>
+						<Show when={loaded().title.trim().length > 0}>
+							<p class="entry-caption">— {loaded().title}</p>
+						</Show>
 					</article>
 				)}
 			</Show>

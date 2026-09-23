@@ -1,5 +1,5 @@
 import { createMemo, createResource, For, Show } from 'solid-js';
-import { getPosts } from '#/lib/cms';
+import { getPostsCached } from '#/lib/cms';
 import { buildTimelineRows } from '#/lib/timeline';
 import type { TimelineRow } from '#/lib/timeline';
 import Entry from '#/components/Entry';
@@ -22,7 +22,8 @@ function TimelineRowView(props: { row: TimelineRow }) {
 }
 
 export default function Timeline() {
-	const [posts] = createResource(getPosts);
+	// 캐시가 있으면 fetcher가 배열을 동기로 돌려줘 리소스가 로딩 없이 바로 준비된다.
+	const [posts] = createResource(getPostsCached);
 	const rows = createMemo(() => buildTimelineRows(posts() ?? []));
 
 	return (
