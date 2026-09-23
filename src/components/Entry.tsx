@@ -147,11 +147,20 @@ export default function Entry(props: { post: PostListItem }) {
 										previewRef.style.maxHeight = 'none';
 									}
 								}}
-								class="entry-preview log-body"
+								class="entry-preview"
 								classList={{ 'is-expanded': isCompact() || isExpanded() }}
-								// eslint-disable-next-line solid/no-innerhtml
-								innerHTML={loaded().html}
-							/>
+							>
+								{/* 제목 캡션은 미리보기 안, 본문 맨 끝에 둔다 — 긴 글은 펼쳐야만 보인다. */}
+								<div
+									class="log-body"
+									// eslint-disable-next-line solid/no-innerhtml
+									innerHTML={loaded().html}
+								/>
+								<Show when={props.post.title.trim().length > 0}>
+									<p class="entry-caption">— {props.post.title}</p>
+								</Show>
+							</div>
+
 							<Show when={!isCompact()}>
 								<button
 									type="button"
@@ -161,10 +170,6 @@ export default function Entry(props: { post: PostListItem }) {
 								>
 									{isExpanded() ? '접기' : '펼쳐 읽기'}
 								</button>
-							</Show>
-
-							<Show when={props.post.title.trim().length > 0}>
-								<p class="entry-caption">— {props.post.title}</p>
 							</Show>
 						</>
 					)}
