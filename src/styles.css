@@ -220,13 +220,6 @@ body {
 	text-decoration: underline;
 }
 
-.entry-title {
-	margin-top: 0.25rem;
-	font-size: 1rem;
-	font-weight: 700;
-	color: var(--color-ink);
-}
-
 .entry-preview {
 	position: relative;
 	overflow: hidden;
