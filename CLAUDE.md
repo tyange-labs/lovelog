@@ -1,59 +1,68 @@
-# lovelog — 모바일 청첩장 + 로그
+# lovelog — 부부의 로그 타임라인
 
 ## 프로젝트 개요
 
-`tyange-love`(SvelteKit 블로그)와 `bosskimwithu`(TanStack Start 청첩장)를 하나로 통합한
-프로젝트다. 두 원본은 이 프로젝트가 자리를 잡으면 아카이빙된다.
+`tyange-love`(SvelteKit 블로그)와 `bosskimwithu`(TanStack Start 청첩장)를 하나로 통합했던
+프로젝트다. 2026-09-19 결혼전시회가 끝난 뒤, 사이트의 중심을 **부부의 로그(기록)**로
+옮겼다. 화보·전시 안내·RSVP·Chapter 3(인생곡선/포토부스) 같은 청첩장 전용 기능은
+걷어냈다 — 필요하면 git 태그 `wedding-invitation-2026`과 브랜치 히스토리에서 복원할 수 있다.
 
-결혼식은 **전시회 형식**으로 반나절 이상 진행되고 하객이 자유로운 시간대에 방문한다.
-사이트는 하객에게 공유되는 공개 페이지이면서, 부부의 로그(블로그)를 함께 담는다.
-
-**현재 단계**: 화보·로그 드로어·RSVP 폼까지 구현됐고 디자인도 대부분 입혀졌다.
-RSVP 제출은 `tyange-cms-api`로 실제 전송된다.
+**현재 단계**: React → SolidJS 전면 재작성. 날짜 레일 위에 글을 늘어놓는 타임라인 하나가
+사이트의 전부다. `SHORT_FORM_SINCE`(2026-09-23) 이후에 쓰인 글은 200자 규칙이 적용되는
+짧은 글로 표시한다. **실제 200자 입력 제한은 이 리포가 아니라 글을 쓰는 tyange-cms
+쪽에서 강제한다** — lovelog는 표시만 담당하는 읽기 전용 소비자다.
 
 ## 기술 스택
 
-- **React 19 + TanStack Router** — 파일 기반 라우팅. Start/Nitro가 아니므로 **SSR이 없는
-  순수 정적 SPA**다. 빌드 산출물은 `dist/`
-- **Vite 8**, **TypeScript**, **bun**
+- **SolidJS + `@solidjs/router`** — 파일 기반이 아니라 `App.tsx`에서 직접 라우트를 선언하는
+  수동 라우팅. SSR 없는 **순수 정적 SPA**다. 빌드 산출물은 `dist/`
+- **Vite 8**, **TypeScript**(`jsx: "preserve"`, `jsxImportSource: "solid-js"`), **bun**
 - **Tailwind CSS 4** (`@tailwindcss/vite`, CSS-first `@theme`)
-- **Vitest** + Testing Library
-- lint/format: **oxlint** / **oxfmt**
+- **Vitest** + `@solidjs/testing-library`. vitest가 solid-js의 SSR 진입점을 잡지 않도록
+  `vite.config.ts`의 `resolve.conditions: ['browser']`가 필요하다 — 빠지면 컴포넌트가
+  jsdom에서 반응하지 않는다.
+- lint/format: **oxlint**(react/solid 전용 플러그인 없이 import/typescript/unicorn만) / **oxfmt**
 - import alias: `#/*` → `./src/*` (package.json `imports` 필드)
 
 ## 명령어
 
 ```bash
-bun run dev              # 개발 서버 (port 3000 고정 — 아래 CORS 주석 참고)
-bun run build            # tsc --noEmit && vite build
-bun run preview          # 정적 산출물 확인
-bun run test             # vitest run
-bun run generate-routes  # tsr generate (라우트 추가/삭제 시 routeTree.gen.ts 재생성)
-bun run format           # oxfmt --write
-bun run lint             # oxlint
+bun run dev       # 개발 서버 (port 3000 고정 — 아래 CORS 주석 참고)
+bun run build     # tsc --noEmit && vite build
+bun run preview   # 정적 산출물 확인
+bun run test      # vitest run
+bun run format    # oxfmt --write
+bun run lint      # oxlint
 ```
 
 ## 구조
 
 ```
 src/
-  routes/            파일 기반 라우팅 (__root.tsx = 레이아웃 셸)
-    index.tsx        원페이지: 화보 → RSVP (+ 넛지, 로그 드로어)
-  components/        Header, BookIcon, PhotoStack, ScrollNudge,
-                     LogDrawer, LogList, LogRow, LoadingHeart, RsvpForm
+  App.tsx            Router + RootLayout(Header + 프레임)
+  main.tsx           엔트리 (solid-js/web render)
+  routes/
+    Timeline.tsx      메인 페이지: 날짜 레일 타임라인
+    PostPage.tsx      /p/:id — 글 하나 퍼머링크(공유용)
+  components/
+    Header.tsx        sticky 워드마크
+    Entry.tsx          타임라인 한 행 — 지연 로드 + 미리보기/펼치기
+    MonthHeader.tsx    월 구분 sticky 헤더
+    GapMarker.tsx      글 사이 간격 표시("N일 뒤")
+    LoadingHeart.tsx   픽셀 하트 로딩 인디케이터
   lib/
-    cms.ts           tyange-cms-api 연동 (getPosts / getPost)
-    drawer.tsx       드로어 열림 상태 컨텍스트
-    markdown.ts      marked 래퍼
-    photos.ts        화보 목록 상수
-    rsvp.ts          RSVP 검증 + 제출, 방문 시간대 목록
-  styles.css         디자인 토큰
-  routeTree.gen.ts   자동 생성 — 직접 수정 금지
+    cms.ts            tyange-cms-api 연동 (getPosts / getPost / isLovelogPost)
+    body.ts           글 본문 지연 로드 + 캐시 (loadBody)
+    timeline.ts        순수 함수: dayNumber, gapDays, buildTimelineRows,
+                       isShortForm, plainLength
+    markdown.ts        marked 래퍼
+  styles.css          디자인 토큰 + 타임라인 레일 스타일
 ```
 
 ## 백엔드
 
-`tyange-cms-api`(Rust + Poem)를 쓴다. 별도 서비스를 두지 않는다.
+`tyange-cms-api`(Rust + Poem)를 쓴다. 별도 서비스를 두지 않는다. lovelog는 이제 **읽기
+전용**이다 — 쓰기 엔드포인트(RSVP 등)는 쓰지 않는다.
 
 **쓰고 있는 라우트**
 
@@ -61,79 +70,40 @@ src/
   **하나씩만** 받고 카테고리를 가리지 않는다. `archive` 제외는 이 조건과 정확히 맞아
   서버에 맡기지만, love/lovelog + `general` 카테고리 조건은 표현할 수 없어
   `isLovelogPost`가 그대로 맡는다.
-- `GET /post/:post_id` — 본문, 아코디언 펼칠 때 호출
-- `POST /public/wedding/guests` — RSVP 제출. 인증 없는 공개 쓰기라 `main.rs`에서
-  `SizeLimit` + 분당 5회 / 시간당 30회 `RateLimit`이 걸려 있다.
-- `GET /admin/wedding/guests` — 하객 명단. `AdminOnly` + `Auth`.
+- `GET /post/:post_id` — 본문. 목록 API(`PostItem`)에는 `content`가 없어서 행이 뷰포트
+  근처에 들어올 때(`Entry.tsx`의 `IntersectionObserver`) 개별 호출한다.
 
 > **중요: `tyange-cms-api`를 고칠 때는 반드시 사용자 컨펌을 먼저 받는다.**
-
-### 방문 시간대
-
-`wedding_guests.visit_hour`는 한 시간짜리 시간대의 **시작 시각(24시간제)** 이다.
-전시가 12시에 열고 5시에 닫으므로 12~16이 유효 범위고, 16이 마지막 칸(4-5시)이다.
-`lib/rsvp.ts`의 `VISIT_HOURS`와 `create_wedding_guest.rs`의 `VISIT_HOUR_MIN/MAX`가
-같은 범위를 각자 들고 있으니 **전시 시간이 바뀌면 두 곳을 함께 고친다.**
-시간대를 받기 전에 접수된 행은 `visit_hour`가 NULL이다.
-
-> **로컬에서 폼 제출을 시험할 때는 반드시 `.env.local`에 `VITE_CMS_API_BASE`를 적어
-> 로컬 API로 돌린다.** Vite는 셸에서 넘긴 `VITE_*` 환경변수를 읽지 않아
-> `VITE_CMS_API_BASE=... bun run dev`로는 기본값(운영)이 그대로 쓰이고,
-> 시험 제출이 운영 DB에 하객으로 쌓인다.
 
 ### CORS
 
 **dev 서버 포트를 3000으로 고정한 이유**: `tyange-cms-api`의 CORS 허용 목록에
 `http://localhost:3000`이 이미 들어 있다. 포트를 바꾸면 브라우저에서 CMS 호출이 전부 막힌다.
 
-`https://lovelog.tyange.com`도 이미 허용 목록에 들어가 있다. 도메인을 바꾸면
-`src/main.rs`의 `Cors::new()` 체인에 새 도메인을 더해야 하고,
-**cms-api 배포가 프론트 배포보다 먼저**여야 한다.
+`https://lovelog.tyange.com`도 이미 허용 목록에 들어가 있다.
 
-## 화면 구성
+## 타임라인 UI — "일기장 레일"
 
-메인 페이지는 **화보(스크롤 스냅) → RSVP** 두 덩어리다.
+X(트위터) 타임라인을 그대로 따르지 않는다. 아바타·좋아요·리트윗 같은 반응 UI 대신
+**날짜 레일**로 관계의 리듬을 보여준다.
 
-첫 진입에는 `ScrollNudge`가 화보 위에 뜬다. **사진 슬라이드와 DOM상 완전히 분리된 `fixed`
-레이어**이며(슬라이드 안에 두면 스크롤할 때 사진과 함께 밀려 올라간다), 떠 있는 동안
-`html.nudge-open`으로 페이지 스크롤을 잠근다. 클릭·터치·휠 어느 것으로든 해제되는데,
-그 입력은 **넛지 요소에 붙은 `passive: false` 리스너가 `preventDefault` + `stopPropagation`으로
-전부 흡수**해 사진이 미동도 하지 않게 한다.
-
-언마운트 조건이 까다롭다. 페이드가 끝나도 곧바로 사라지지 않고 **입력이 멎을 때까지 투명한
-흡수막으로 남는다** — 트랙패드는 플릭 한 번에 관성으로 wheel을 1초 가까이 쏟아내는데, 페이드만
-끝났다고 걷어내면 그 잔여분이 화보에 닿아 한 장이 더 넘어간다. 다만 정적 타이머만 두면 사용자가
-계속 스크롤을 시도할 때마다 리셋되어 영영 사라지지 않는 **라이브락**에 빠지므로, 리셋되지 않는
-최대 시한(`FADE_MS + MAX_ABSORB_MS`)을 함께 둔다. 잠금 해제는 애니메이션 콜백이 아니라
-`isMounted` 상태에 직접 묶는다 — 콜백에 기대면 안 불릴 때 페이지가 영영 잠긴다.
-
-로그 목록은 페이지 흐름에 없고,
-헤더 오른쪽 버튼으로 여는 **사이드 드로어**(`LogDrawer`)에 담긴다. 열림 상태는
-`lib/drawer.tsx`의 컨텍스트가 들고, `__root.tsx`가 Provider를 건다.
-
-드로어 안에서 항목을 누르면 그 자리에서 본문이 펼쳐지고, **다른 항목을 누르면 앞의 것이
-닫히고 새 항목이 열린다**(한 번에 하나만). ESC와 배경 클릭으로 닫히며, 열려 있는 동안
-`html.drawer-open`으로 뒤쪽 스크롤을 잠근다.
-
-펼침/접힘은 `.log-panel`의 `grid-template-rows: 0fr <-> 1fr` 트랜지션이다.
-`height: auto`는 트랜지션이 걸리지 않아 이 방식을 쓴다. 애니메이션이 걸리려면 패널이 항상
-마운트돼 있어야 하므로, **닫힌 상태를 조건부 렌더링(`{isOpen && ...}`)으로 되돌리지 말 것.**
-대신 `inert`로 접근성 트리에서 뺀다.
-
-본문을 받아오는 동안에는 `LoadingHeart`(픽셀 하트, 박동 애니메이션)를 행 안에 띄운다.
-
-## 데이터 흐름
-
-- **목록**: 라우트 `loader`에서 `getPosts()`. `isLovelogPost` 필터(카테고리 `general` +
-  태그 `love`/`lovelog`)로 거른다. **이 필터를 제거하지 말 것** — 청첩장에 다른 블로그 글이
-  새는 걸 막는 장치다. 여기에 더해 **`archive` 태그가 붙은 글은 무조건 빠진다.**
-  lovelog 태그가 같이 붙어 있어도 마찬가지고, `archive`의 카테고리는 가리지 않는다.
-  CMS에서 태그 하나만 붙이면 청첩장에서 내려가라는 뜻이다.
-  거르는 일은 요청의 `exclude` 파라미터가 하고, `isArchivedPost`는 주소나 파라미터가
-  잘못됐을 때를 대비한 2차 방어선이라 **둘 다 두는 게 맞다.**
-- **본문**: 행을 처음 펼칠 때만 `getPost()` 호출. `LogRow.tsx`의 모듈 스코프 `bodyCache`가
-  Promise를 캐시하므로 재펼침·StrictMode 이중 실행·연타에도 요청이 한 번만 나간다.
-- 로딩/실패 상태는 **행 안에서** 표시한다. 전역 스피너를 쓰지 않는다.
+- `buildTimelineRows`(`lib/timeline.ts`)가 `posts`(최신순) 하나로 월 구분·글·간격 세 종류의
+  행을 만든다. 월이 바뀌면 `month` 행, 인접한 두 글 사이가 하루를 넘으면 `gap` 행을 끼워
+  넣는다. `Timeline.tsx`는 이 배열을 그대로 순회만 한다 — 그루핑 로직을 컴포넌트에 넣지 말 것.
+- `Entry.tsx`는 `post_id`별로 `loadBody`를 한 번만 부른다(`lib/body.ts`의 모듈 스코프
+  `bodyCache`, Promise를 캐시해 재요청·재마운트에도 요청이 한 번만 나간다). 실패하면
+  캐시에서 지워 "다시 시도"가 재요청하게 한다.
+- **짧은 글 판정은 두 조건을 다 봐야 한다**: `isShortForm`(작성일이 `SHORT_FORM_SINCE`
+  이후)이면서 실제 본문도 `SHORT_FORM_LIMIT`(200자) 이내여야 `entry-compact`로 렌더링된다.
+  기준일 이후 글이라도 길게 쓰였다면 레거시 글과 같은 미리보기+펼치기로 처리한다 — 실제
+  글자 수 제한이 없는 이 리포 쪽의 방어선이다. 글자 수는 `plainLength`가 마크다운 문법을
+  걷어내고 센다(완벽한 파서는 아니다).
+- 레거시 글(기준일 이전)은 `.entry-preview`가 기본 `max-height: 7.5rem`(4줄 안팎) +
+  하단 그라디언트 페이드로 미리보기를 보여주고, "펼쳐 읽기"를 누르면 `max-height`
+  트랜지션으로 펼쳐진다. **동시에 여러 글을 펼칠 수 있다** — 한 번에 하나만 열리던
+  구 드로어 시절의 제약은 없앴다.
+- 날짜(`D+N · M.D`)를 누르면 `/p/:id` 퍼머링크로 이동한다. `dayNumber`의 기준일
+  `DAY_ONE`(2025-12-17, 첫 글 "day one")은 day one 자체를 D+1로 센다.
 
 ## 폰트
 
@@ -150,45 +120,25 @@ src/
 
 ## 컨벤션
 
-- 라우트 파일을 추가/삭제하면 `bun run generate-routes` 실행.
-  `routeTree.gen.ts`는 절대 손으로 수정하지 않는다.
 - 색상은 하드코딩하지 말고 `styles.css`의 토큰(`--color-bg`, `--color-accent`, `--color-ink`)을
   쓴다. 디자인 확정 시 토큰만 갈아끼우기 위함이다.
-- **모바일 전용 폭 고정**. `.frame`이 `--frame-max-width`(430px)로 전체를 묶고 가운데 정렬하며,
-  프레임 밖은 `--color-shell`이다. 넓은 화면에서도 레이아웃이 늘어나지 않는다.
-- **화보는 스크롤 진행도의 순수 함수다.** `PhotoStack`은 상태를 갖지 않는다.
-  높이 `N × 한 화면`짜리 트랙 안에 `sticky` 뷰포트를 두고, 사진 N장을 같은 자리에
-  `z-index` 역순으로 겹친다. 사진 i의 `y`는 `useScroll` 진행도를 `useTransform`으로
-  매핑해 `0% → -105%`로 간다. 마지막 장은 빠지지 않고 그 자리에서 RSVP가 이어받는다.
-  **인덱스 상태로 넘기는 방식으로 되돌리지 말 것** — 그러면 페이지 스크롤을 잠가야 하고,
-  화보와 RSVP 경계마다 잠금·해제·복귀 예외가 끝없이 생긴다. 스크롤에만 의존하면
-  트랙패드·터치·휠·키보드가 전부 그냥 동작하고 되돌아가기도 저절로 대칭이 된다.
-- 사진은 **뷰포트 크기 그대로** 미끄러진다. 전환 중 `scale`을 넣지 않는다.
-- 스냅 대상은 트랙 안에 한 화면 간격으로 깐 **보이지 않는 마커(`.photo-snap`)** 다.
-  sticky 뷰포트는 하나뿐이라 그 자체로는 스냅 지점이 될 수 없다. 마커가 없으면 사진이
-  반쯤 빠진 채로 멈춘다.
-- **`html`에 `scroll-behavior: smooth`를 넣지 말 것.** 스냅과 부딪혀 스크롤이 끈적해진다.
-  부드러운 이동이 필요한 곳은 `scrollIntoView({ behavior: 'smooth' })`로 호출부에서 지정한다.
-- **다크 모드를 만들지 않는다.** 시안이 네이비 단일 테마이고, 사진 위 오버레이 대비가 깨진다.
+- 읽기 폭은 `.frame`이 `--frame-max-width`(640px)로 묶고 가운데 정렬하며, 프레임 밖은
+  `--color-shell`이다. 청첩장 시절의 430px 모바일 전용 고정폭은 아니다 — 타임라인은
+  데스크톱에서도 그대로 읽을 수 있어야 한다.
+- **다크 모드를 만들지 않는다.** 네이비 단일 테마를 유지한다.
 - **주석을 달지 않는다.** 코드는 이름과 구조로 자명하게 쓴다. 다만 "왜 이렇게 했는지"가
-  코드만으로 드러나지 않는 곳(캐시 전략, stub 경계)은 예외로 남긴다.
+  코드만으로 드러나지 않는 곳(캐시 전략, 기준일 상수)은 예외로 남긴다.
 - 코드 수정 후 `bun run format`과 `bun run lint`를 통과시킨다. 타입은 `bun run build`가 겸한다.
 
 ## 다음 단계
 
-1. 사진은 `public/photos/photo-1..8.jpg` (긴 변 1600px, 총 2.0MB). 이 머신의 `sips`가
-   WebP를 못 써서 JPEG q80으로 변환했다. 더 줄이려면 `cwebp`가 필요하다.
-2. `tyange-cms`에 하객 명단 리스트 페이지 (`visit_hour`별 집계 포함)
-3. 익명 이미지 업로드, 경매 출품 폼
+1. **tyange-cms 에디터에 200자 입력 제한 추가** — lovelog 태그가 붙고 작성일이
+   `SHORT_FORM_SINCE`(현재 2026-09-23) 이후인 글에 한해 강제. 별도 작업.
+2. `og.jpg`가 아직 결혼전시회 시절 이미지다. 타임라인에 맞는 썸네일로 교체할지 판단.
+3. 커버 문구/소개 없이 바로 타임라인으로 들어가는 게 맞는지, 짧은 도입부가 필요한지 미확정.
 
 ## 배포
 
 `https://lovelog.tyange.com`. `main` 푸시가 곧 배포다 —
 `.github/workflows/deploy.yml`이 lint → test → build → SCP → nginx 리로드까지 돌린다.
 **즉 push가 곧 운영 반영이다.**
-
-## 미확정
-
-- 커버 문구
-- 시안(전시장 안내)에 있는 평면도를 사이트에 넣을지
-- Motion은 화보 스크롤 연동에만 쓴다. 부담되면 IntersectionObserver로 대체 가능.

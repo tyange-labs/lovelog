@@ -18,7 +18,7 @@
 	--color-ink: #ffffff;
 	--color-shell: #1e1e1e;
 
-	--frame-max-width: 430px;
+	--frame-max-width: 640px;
 
 	--font-sans:
 		'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui,
@@ -27,94 +27,30 @@
 }
 
 :root {
-	--overlay-cover: rgb(0 0 0 / 0.42);
 	--rule: 1px solid var(--color-accent);
-	--frame-width: 1080;
-	--frame-height: 1920;
 }
 
 html {
 	background-color: var(--color-shell);
 	color-scheme: dark;
-	scroll-snap-type: y mandatory;
-	scroll-padding-top: 3.5rem;
-}
-
-/* 화보 트랙은 sticky 뷰포트 하나뿐이라 스냅 대상이 없다. 한 화면 간격으로 보이지 않는
-   마커를 깔아 스냅 지점을 만든다. 그래야 사진이 반쯤 빠진 채로 멈추지 않는다. */
-.photo-snap {
-	scroll-snap-align: start;
-	scroll-snap-stop: always;
-}
-
-/* RSVP는 뷰포트보다 클 수 있다. 스냅 영역이 스냅포트보다 크면 자유 스크롤이 허용된다.
-   stop: always가 없으면 마지막 사진에서 세게 플릭했을 때 이 섹션의 상단 스냅 지점을 그대로
-   지나쳐 본문 중간에 멈춘다. 화보에서 넘어올 때는 항상 맨 위에서 다시 시작해야 한다.
-
-   min-height는 이 섹션의 스냅 지점을 도달 가능하게 만든다. 내용이 한 화면보다 짧으면
-   스냅 지점이 문서 끝보다 뒤에 놓여 영영 닿지 않고, mandatory 스냅이 마지막 사진으로
-   되돌려버린다. */
-.page-rest {
-	min-height: calc(100lvh - 3.5rem);
-	scroll-snap-align: start;
-	scroll-snap-stop: always;
 }
 
 body {
 	background-color: var(--color-shell);
 	color: var(--color-ink);
 	overflow-wrap: anywhere;
+
+	/* 한글은 어절 단위로만 끊는다. */
+	word-break: keep-all;
 }
 
-/* 청첩장은 모바일에서만 열린다. 넓은 화면에서도 모바일 프레임 폭으로 고정하고
-   프레임 밖은 셸 색으로 둔다. */
+/* 넓은 화면에서도 읽기 폭을 고정하고, 프레임 밖은 셸 색으로 둔다. */
 .frame {
-	/* 시안은 1080px 폭으로 그려졌다. --u가 시안의 1px에 해당하는 실제 길이라,
-	   시안 수치를 그대로 적으면 프레임 폭이 얼마가 되든 비율이 유지된다. */
-	--u: calc(min(100vw, var(--frame-max-width)) / 1080);
-
 	width: 100%;
 	max-width: var(--frame-max-width);
 	margin-inline: auto;
 	background-color: var(--color-bg);
-}
-
-/* 커버 하단의 이름 줄. 시안에서 사진 아래 끝으로부터 2.7% 위에 놓이고,
-   좌우 190u 안쪽에서 이름-날짜-이름이 나뉜다.
-
-   사진 레이어가 아니라 sticky 뷰포트에 얹는다. 그래야 사진이 아래로 지나가는 동안
-   제자리에 남고, 화보 구간이 끝나면 트랙과 함께 빠져 안내 페이지를 덮지 않는다. */
-.cover-caption {
-	position: absolute;
-	z-index: 10;
-	right: 0;
-	bottom: 2.7%;
-	left: 0;
-	display: grid;
-	grid-template-columns: 1fr auto 1fr;
-	align-items: center;
-	padding-inline: calc(190 * var(--u));
-	font-family: var(--font-wordmark);
-	font-size: calc(28 * var(--u));
-	line-height: calc(45 * var(--u));
-	color: var(--color-accent);
-	text-shadow: 0 calc(2 * var(--u)) calc(10 * var(--u)) rgb(0 0 0 / 0.85);
-	white-space: nowrap;
-}
-
-.cover-caption > :last-child {
-	text-align: right;
-}
-
-/* 사진 8장이 캡션 아래를 차례로 지나가는데, 밝은 컷에서는 오렌지 글자가 묻힌다.
-   시안에는 없지만 어느 사진에서도 읽히려면 바닥 그늘이 필요하다.
-   sticky 뷰포트의 overflow-hidden이 아래로 넘치는 부분을 잘라준다. */
-.cover-caption::before {
-	content: '';
-	position: absolute;
-	inset: calc(-160 * var(--u)) 0 calc(-60 * var(--u)) 0;
-	z-index: -1;
-	background: linear-gradient(to top, rgb(0 0 0 / 0.62), rgb(0 0 0 / 0.52) 40%, transparent);
+	min-height: 100lvh;
 }
 
 @utility rule-t {
@@ -123,103 +59,6 @@ body {
 
 @utility rule-b {
 	border-bottom: var(--rule);
-}
-
-/* 스크롤 넛지는 사진 슬라이드 밖의 고정 레이어다. 슬라이드 안에 두면 스크롤할 때
-   사진과 함께 밀려 올라간다. .frame과 같은 방식으로 가운데 정렬해 폭을 맞춘다. */
-.nudge-layer {
-	position: fixed;
-	top: 3.5rem;
-	bottom: 0;
-	left: 50%;
-	z-index: 15;
-	display: flex;
-	width: 100%;
-	max-width: var(--frame-max-width);
-	align-items: center;
-	justify-content: center;
-	transform: translateX(-50%);
-	background-color: var(--overlay-cover);
-	touch-action: none;
-}
-
-/* 넛지가 떠 있는 동안에는 페이지가 움직이지 않는다.
-   첫 입력은 넛지를 걷어내는 데에만 쓰이고, 잠금은 페이드가 끝난 뒤 풀린다. */
-html.nudge-open {
-	overflow: hidden;
-}
-
-/* 로그 목록은 헤더 오른쪽 버튼으로 여는 사이드 드로어에 담긴다.
-   .frame이 가운데 정렬된 고정 폭이므로, fixed인 드로어도 같은 방식으로 맞춰준다. */
-.drawer-backdrop {
-	position: fixed;
-	inset: 0;
-	z-index: 20;
-	background-color: rgb(0 0 0 / 0.5);
-	opacity: 0;
-	pointer-events: none;
-	transition: opacity 200ms ease;
-}
-
-.drawer-backdrop.is-open {
-	opacity: 1;
-	pointer-events: auto;
-}
-
-.drawer-layer {
-	position: fixed;
-	top: 3.5rem;
-	bottom: 0;
-	left: 50%;
-	z-index: 25;
-	width: 100%;
-	max-width: var(--frame-max-width);
-	transform: translateX(-50%);
-	overflow: hidden;
-	pointer-events: none;
-}
-
-.drawer-panel {
-	height: 100%;
-	border-top: var(--rule);
-	overflow-y: auto;
-	overscroll-behavior: contain;
-	background-color: var(--color-bg);
-	transform: translateX(100%);
-	transition: transform 240ms ease;
-	pointer-events: none;
-}
-
-.drawer-panel.is-open {
-	transform: translateX(0);
-	pointer-events: auto;
-}
-
-html.drawer-open {
-	overflow: hidden;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.drawer-backdrop,
-	.drawer-panel {
-		transition: none;
-	}
-}
-
-/* 아코디언 collapse: height auto는 트랜지션이 안 걸리므로 grid 1fr <-> 0fr을 쓴다.
-   패널은 항상 마운트되어 있어야 애니메이션이 걸리므로, 닫힌 상태는 inert로 접근성 트리에서 뺀다. */
-.log-panel {
-	display: grid;
-	grid-template-rows: 0fr;
-	transition: grid-template-rows 260ms ease;
-}
-
-.log-panel.is-open {
-	grid-template-rows: 1fr;
-}
-
-.log-panel-inner {
-	overflow: hidden;
 }
 
 .loading-heart {
@@ -240,10 +79,6 @@ html.drawer-open {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.log-panel {
-		transition: none;
-	}
-
 	.loading-heart {
 		animation: none;
 		opacity: 0.8;
@@ -267,6 +102,7 @@ html.drawer-open {
 .log-body img {
 	max-width: 100%;
 	height: auto;
+	border-radius: 0.25rem;
 }
 
 .log-body a {
@@ -296,261 +132,194 @@ html.drawer-open {
 	opacity: 0.9;
 }
 
-.info-page {
+/* --- 타임라인: 일기장 레일 ------------------------------------------------
+   왼쪽에 세로선(레일)을 두고, 글은 레일 위 점으로 표시한다. X 같은 아바타·반응
+   버튼 대신 날짜·D+N·간격으로 관계의 리듬을 보여준다. */
+
+.timeline {
+	display: flex;
+	flex-direction: column;
+}
+
+.month-header,
+.entry,
+.gap-marker {
+	display: grid;
+	grid-template-columns: 1.5rem 1fr;
+	column-gap: 0.75rem;
+}
+
+.month-header {
+	position: sticky;
+	top: 3.5rem;
+	z-index: 5;
+	padding-block: 0.5rem;
+	background-color: var(--color-bg);
+	font-family: var(--font-wordmark);
+	font-size: 0.8rem;
+	letter-spacing: 0.08em;
+	color: var(--color-accent);
+	opacity: 0.85;
+}
+
+.month-header > span {
+	grid-column: 2;
+}
+
+.entry-rail {
 	position: relative;
-	padding-inline: calc(84 * var(--u));
-	padding-top: calc(175 * var(--u));
-	padding-bottom: calc(118 * var(--u));
-	color: var(--color-accent);
-	font-weight: 500;
-
-	/* 한글은 어절 단위로만 끊는다. body의 overflow-wrap: anywhere가 살아 있으면
-	   keep-all을 뚫고 어절 중간에서 잘리므로 여기서 되돌린다. */
-	word-break: keep-all;
-	overflow-wrap: normal;
 }
 
-/* 문서 끝에도 스냅 지점이 있어야 한다. 없으면 맨 아래에 닿는 순간 mandatory 스냅이
-   가장 가까운 지점 -- 섹션 상단 -- 까지 통째로 되감는다. 화보 트랙에 보이지 않는 마커를
-   깔아 스냅 지점을 만든 것과 같은 방법이다. */
-.info-snap-end {
+.entry-rail::before {
+	content: '';
 	position: absolute;
-	right: 0;
+	top: 0;
 	bottom: 0;
-	left: 0;
-	height: 1px;
-	scroll-snap-align: end;
-	pointer-events: none;
-}
-
-/* 포스터는 그 자체로 여백을 갖고 완성된 이미지라 프레임 폭을 꽉 채운다.
-   info-page의 위·좌·우 패딩을 음수 마진으로 빠져나온다. */
-.info-poster {
-	display: block;
-
-	/* Tailwind preflight의 img { max-width: 100% }가 살아 있으면 본문 폭에 갇혀
-	   프레임 밖으로 나오지 못한다. */
-	max-width: none;
-
-	width: calc(100% + 168 * var(--u));
-	margin-top: calc(-175 * var(--u));
-	margin-inline: calc(-84 * var(--u));
-	margin-bottom: calc(107 * var(--u));
-}
-
-.info-block + .info-block {
-	margin-top: calc(107 * var(--u));
-}
-
-.info-title {
-	font-size: calc(68 * var(--u));
-	font-weight: 600;
-}
-
-.info-title + * {
-	margin-top: calc(105 * var(--u));
-}
-
-.info-body {
-	font-size: calc(40 * var(--u));
-	line-height: calc(66 * var(--u));
-	text-align: justify;
-}
-
-.info-body + .info-body {
-	margin-top: calc(60 * var(--u));
-}
-
-/* 조감도는 배경이 투명한 선 그림이고 잉크가 --color-accent와 같은 색이라
-   본문 위에 그대로 얹힌다. 여백은 이미지에 넣지 않고 여기서 준다. */
-.info-floorplan {
-	display: block;
-	width: 100%;
-	height: auto;
-	margin-top: calc(90 * var(--u));
-}
-
-/* 라벨 열은 시안에서 x=84, 값 열은 x=268이라 두 열의 간격이 184다. */
-.info-pairs {
-	display: grid;
-	grid-template-columns: calc(184 * var(--u)) 1fr;
-	font-size: calc(36 * var(--u));
-	line-height: calc(68 * var(--u));
-}
-
-/* 안내 문구는 라벨을 붙일 성질이 아니라 목록으로 둔다. 줄이 넘어가면 글머리표 아래가
-   아니라 첫 글자에 맞춰 들여쓴다. */
-.info-notes {
-	display: grid;
-	gap: calc(30 * var(--u));
-	margin-top: calc(60 * var(--u));
-	font-size: calc(40 * var(--u));
-	line-height: calc(66 * var(--u));
-	text-align: justify;
-}
-
-.info-notes > li {
-	padding-left: calc(28 * var(--u));
-	text-indent: calc(-28 * var(--u));
-}
-
-/* 글머리표 뒤를 공백 문자로 띄우면 양끝맞춤이 그 공백까지 늘려 첫 글자가 밀린다.
-   고정 폭 인라인 블록으로 자리를 잡아 어느 줄에서든 간격이 같게 둔다. */
-.info-notes > li::before {
-	content: '-';
-	display: inline-block;
-	width: calc(28 * var(--u));
-}
-
-.info-field,
-.info-button {
-	width: 100%;
-	height: calc(112 * var(--u));
-	border: calc(5 * var(--u)) solid var(--color-accent);
-	border-radius: calc(29 * var(--u));
-	background-color: transparent;
-	padding-inline: calc(30 * var(--u));
-	font-size: calc(42 * var(--u));
-	color: var(--color-accent);
-	outline-offset: calc(-10 * var(--u));
-}
-
-.info-field::placeholder {
-	color: var(--color-accent);
-	opacity: 0.45;
-}
-
-.info-button {
-	font-weight: 600;
-}
-
-.info-button:disabled {
-	opacity: 0.5;
-}
-
-/* RSVP 폼. 입력 항목이 셋뿐이라 한 화면에 두고, 키보드는 성함에만 필요하게 만든다.
-   인원은 −/+ 버튼, 시간대는 라디오 버튼을 칩 모양으로 씌워 한 번 눌러 고르게 한다. */
-.rsvp-form {
-	display: flex;
-	flex-direction: column;
-	gap: calc(52 * var(--u));
-}
-
-.rsvp-group {
-	display: flex;
-	flex-direction: column;
-	gap: calc(18 * var(--u));
-}
-
-.rsvp-label {
-	font-size: calc(34 * var(--u));
-	line-height: calc(48 * var(--u));
-}
-
-.rsvp-stepper {
-	display: grid;
-	grid-template-columns: calc(112 * var(--u)) 1fr calc(112 * var(--u));
-	align-items: center;
-	gap: calc(20 * var(--u));
-}
-
-.rsvp-step {
-	height: calc(112 * var(--u));
-	border: calc(5 * var(--u)) solid var(--color-accent);
-	border-radius: 50%;
-	background-color: transparent;
-	font-size: calc(48 * var(--u));
-	line-height: 1;
-	color: var(--color-accent);
-	outline-offset: calc(-10 * var(--u));
-}
-
-.rsvp-step:disabled {
-	opacity: 0.35;
-}
-
-.rsvp-count {
-	font-size: calc(40 * var(--u));
-	text-align: center;
-}
-
-.rsvp-chips {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: calc(20 * var(--u));
-}
-
-.rsvp-chip {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: calc(100 * var(--u));
-	border: calc(5 * var(--u)) solid var(--color-accent);
-	border-radius: calc(29 * var(--u));
-	font-size: calc(34 * var(--u));
-	cursor: pointer;
-}
-
-/* 고른 칸은 면을 채워 구분한다. 테두리나 글자 색만 바꾸면 오렌지 위 오렌지라 눈에 안 띈다. */
-.rsvp-chip:has(input:checked) {
+	left: 50%;
+	width: 1px;
 	background-color: var(--color-accent);
-	color: var(--color-bg);
-	font-weight: 600;
+	opacity: 0.35;
+	transform: translateX(-50%);
 }
 
-/* 라디오 입력을 sr-only로 숨겼기 때문에 포커스 테두리도 칩이 대신 그려야 한다. */
-.rsvp-chip:has(input:focus-visible) {
-	outline: calc(5 * var(--u)) solid var(--color-accent);
-	outline-offset: calc(4 * var(--u));
+.entry-dot {
+	position: absolute;
+	top: 0.6rem;
+	left: 50%;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background-color: var(--color-accent);
+	transform: translate(-50%, -50%);
 }
 
-.rsvp-error {
-	font-size: calc(34 * var(--u));
-	line-height: calc(48 * var(--u));
+.entry {
+	padding-block: 1rem;
 }
 
-.rsvp-done {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: calc(12 * var(--u));
-	text-align: center;
+.entry-main {
+	min-width: 0;
 }
 
-.rsvp-done-line {
-	font-size: calc(40 * var(--u));
-	line-height: calc(60 * var(--u));
-}
-
-.rsvp-done-strong {
-	font-size: calc(52 * var(--u));
-	line-height: calc(72 * var(--u));
-	font-weight: 600;
-}
-
-.rsvp-quiet-button {
-	margin-top: calc(28 * var(--u));
-	font-size: calc(34 * var(--u));
+.entry-date {
+	display: inline-block;
+	font-size: 0.75rem;
+	letter-spacing: 0.04em;
 	color: var(--color-accent);
-	text-decoration: underline;
-	text-underline-offset: calc(8 * var(--u));
-}
-
-.info-footer {
-	margin-top: calc(140 * var(--u));
-	font-size: calc(30 * var(--u));
-	line-height: calc(45 * var(--u));
-	text-align: center;
-	opacity: 0.65;
-}
-
-.info-footer a {
-	color: inherit;
+	opacity: 0.8;
 	text-decoration: none;
 }
 
-.info-closing {
-	font-size: calc(40 * var(--u));
-	line-height: calc(66 * var(--u));
-	text-align: center;
+.entry-date:hover {
+	text-decoration: underline;
+}
+
+.entry-title {
+	margin-top: 0.25rem;
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--color-accent);
+}
+
+.entry-preview {
+	position: relative;
+	overflow: hidden;
+	max-height: 7.5rem;
+	margin-top: 0.5rem;
+	transition: max-height 320ms ease;
+}
+
+.entry-preview:not(.is-expanded)::after {
+	content: '';
+	position: absolute;
+	inset: auto 0 0 0;
+	height: 2.5rem;
+	background: linear-gradient(to top, var(--color-bg), transparent);
+	pointer-events: none;
+}
+
+.entry-preview.is-expanded {
+	max-height: 6000px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.entry-preview {
+		transition: none;
+	}
+}
+
+.entry-expand {
+	margin-top: 0.5rem;
+	font-size: 0.8125rem;
+	color: var(--color-accent);
+	text-decoration: underline;
+	text-underline-offset: 0.25rem;
+}
+
+/* 짧은 글(200자 규칙 이후)은 제목·미리보기 페이드 없이 본문을 바로 크게 보여준다. */
+.entry-compact .entry-preview {
+	max-height: none;
+	margin-top: 0.375rem;
+	font-size: 1.0625rem;
+	line-height: 1.7;
+}
+
+.entry-compact .entry-preview::after {
+	display: none;
+}
+
+.gap-marker {
+	padding-block: 0.75rem;
+}
+
+.gap-rail {
+	position: relative;
+}
+
+.gap-rail::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 50%;
+	width: 1px;
+	background-image: linear-gradient(var(--color-accent) 50%, transparent 0);
+	background-size: 1px 8px;
+	background-repeat: repeat-y;
+	opacity: 0.35;
+	transform: translateX(-50%);
+}
+
+.gap-label {
+	grid-column: 2;
+	font-size: 0.75rem;
+	color: var(--color-accent);
+	opacity: 0.55;
+}
+
+/* --- 글 하나 보기 (/p/:id) ------------------------------------------------ */
+
+.post-back {
+	display: inline-block;
+	margin-bottom: 1.5rem;
+	font-size: 0.875rem;
+	color: var(--color-accent);
+	opacity: 0.8;
+	text-decoration: none;
+}
+
+.post-back:hover {
+	text-decoration: underline;
+}
+
+.post-title {
+	margin-top: 0.5rem;
+	margin-bottom: 1.5rem;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--color-accent);
+}
+
+.post-article .entry-date {
+	opacity: 0.8;
 }

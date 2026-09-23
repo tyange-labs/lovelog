@@ -1,7 +1,7 @@
 const LOVELOG_CATEGORY = 'general';
 const LOVELOG_TAGS = new Set(['love', 'lovelog']);
 
-// 청첩장에서 내리고 싶은 글에 붙이는 태그. 카테고리를 가리지 않고 이 태그 하나로 뺀다.
+// 타임라인에서 내리고 싶은 글에 붙이는 태그. 카테고리를 가리지 않고 이 태그 하나로 뺀다.
 // 거르는 일은 서버(/posts/search-with-tags?exclude=)가 하고, 아래 isArchivedPost는
 // 주소가 바뀌거나 파라미터가 빠졌을 때를 대비한 2차 방어선이다.
 const ARCHIVED_TAG = 'archive';
