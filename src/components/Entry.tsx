@@ -78,7 +78,9 @@ export default function Entry(props: { post: PostListItem }) {
 					{formatMonthDay(props.post.published_at)}
 				</A>
 
-				<Show when={!isCompact()}>
+				{/* 레거시 글은 제목이 늘 있으니 위에 바로 보여준다. 짧은 글(기준일 이후)은
+				제목이 없을 수 있는 트위터식 글이라 위에 두지 않고, 있으면 본문 뒤에 캡션으로 뺀다. */}
+				<Show when={!shortForm()}>
 					<h2 class="entry-title">{props.post.title}</h2>
 				</Show>
 
@@ -115,6 +117,10 @@ export default function Entry(props: { post: PostListItem }) {
 								<button type="button" class="entry-expand" onClick={() => setIsExpanded(true)}>
 									펼쳐 읽기
 								</button>
+							</Show>
+
+							<Show when={shortForm() && props.post.title.trim().length > 0}>
+								<p class="entry-caption">— {props.post.title}</p>
 							</Show>
 						</>
 					)}

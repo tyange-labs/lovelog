@@ -32,7 +32,9 @@ export default function PostPage() {
 				{(loaded) => (
 					<article class="post-article">
 						<p class="entry-date">{loaded().published_at}</p>
-						<h1 class="post-title">{loaded().title}</h1>
+						<Show when={loaded().title.trim().length > 0}>
+							<h1 class="post-title">{loaded().title}</h1>
+						</Show>
 						<div
 							class="log-body"
 							// eslint-disable-next-line solid/no-innerhtml
