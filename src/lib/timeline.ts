@@ -54,13 +54,13 @@ export function buildTimelineRows(posts: PostListItem[]): TimelineRow[] {
 	return rows;
 }
 
-const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 export function weekdayOf(publishedAt: string): string {
 	return WEEKDAYS[new Date(toUtcDays(publishedAt) * 86_400_000).getUTCDay()];
 }
 
-// 테이프 라벨: "8.4 TUE"
+// 테이프 라벨: "8.4 화"
 export function formatTape(publishedAt: string): string {
 	const [, month, day] = publishedAt.split('-').map(Number);
 	return `${month}.${day} ${weekdayOf(publishedAt)}`;

@@ -148,7 +148,7 @@ body {
 /* --- 타임라인: 스크랩북 ------------------------------------------------------
    글 하나하나를 어두운 책상 위에 붙인 크림색 종이 조각으로 둔다. 기울기와 좌우
    어긋남은 글 ID에서 정해지고(scrapPose), 날짜는 오렌지 테이프, 월은 스탬프,
-   글 사이 간격은 손글씨 메모와 실제 여백 크기로 보여준다. 종이 위 글씨 자체는
+   글 사이 간격은 날수에 비례한 여백으로만 보여준다. 종이 위 글씨 자체는
    기울기 1.4° 이내라 읽기에 지장이 없다. */
 
 .timeline {
@@ -204,7 +204,10 @@ body {
 	padding: 0.3rem 0.625rem;
 	background-color: rgb(244 96 22 / 0.92);
 	color: var(--color-scrap-ink);
-	font-family: var(--font-wordmark);
+	/* Determination에는 한글이 없어 요일은 Pretendard로 떨어진다. 합성 볼드는 막는다. */
+	font-family: 'Determination', var(--font-sans);
+	font-weight: 600;
+	font-synthesis: none;
 	font-size: 0.75rem;
 	letter-spacing: 0.06em;
 	text-decoration: none;
@@ -233,13 +236,19 @@ body {
 }
 
 .entry-more {
-	display: inline-block;
-	padding: 0.25rem 0 0.125rem;
-	font-family: var(--font-hand);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 2.75rem;
+	min-height: 2.75rem;
 	font-size: 1.375rem;
-	color: var(--color-scrap-ink);
-	text-decoration: underline;
-	text-underline-offset: 0.25rem;
+	line-height: 1;
+	text-decoration: none;
+	transition: transform 120ms ease;
+}
+
+.entry-more:hover {
+	transform: rotate(-8deg) scale(1.1);
 }
 
 /* 짧은 글(200자 규칙 이후)은 자르지 않고 본문을 바로 크게 보여준다. */
@@ -257,19 +266,6 @@ body {
 	font-size: 1.25rem;
 	text-align: right;
 	color: var(--color-scrap-muted);
-}
-
-.gap-note {
-	display: flex;
-	align-items: center;
-	padding-inline: 1.75rem;
-}
-
-.gap-note > span {
-	font-family: var(--font-hand);
-	font-size: 1.5rem;
-	color: var(--color-ink-muted);
-	transform: rotate(var(--tilt, 0deg));
 }
 
 /* --- 글 하나 보기 (/p/:id) ------------------------------------------------

@@ -48,7 +48,7 @@ src/
     Header.tsx        sticky 워드마크
     Entry.tsx          종이 조각 한 장 — 지연 로드 + 테이프 날짜 + 2줄 미리보기 + 더보기
     MonthHeader.tsx    월 스탬프
-    GapMarker.tsx      글 사이 손글씨 메모("N일 뒤") + 날수에 비례한 여백
+    GapMarker.tsx      글 사이 여백 (날수에 비례, 글자 없음)
     LoadingHeart.tsx   픽셀 하트 로딩 인디케이터
   lib/
     cms.ts            tyange-cms-api 연동 (getPosts / getPostsCached / getPost / isLovelogPost)
@@ -92,11 +92,14 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
   돌려주고, `Entry`가 `--tilt`/`--shift` CSS 변수로 넘긴다. 목록 순번으로 정하면 새 글이 올라올
   때마다 아래 글 전부가 자세를 바꾸므로 순번 기반으로 바꾸지 말 것. 기울기를 ±1.4°보다 키우지
   말 것 — 종이 위 본문 가독성의 한계선이다.
-- 날짜는 오렌지 테이프(`.scrap-tape`, `formatTape` → `8.4 TUE`, Determination 서체)이고 누르면
-  글 페이지로 간다. 월은 오렌지 테두리 스탬프(`.month-stamp`), sticky가 아니다.
-- 글 사이 간격은 손글씨 메모(`.gap-note`, Nanum Pen Script)로, 날수에 비례해 여백 높이가 커진다
-  (`28 + 일수×2`px, 최대 220px). 메모 좌우는 날수에서 뽑는다 — 간격은 짝수 날이 많아서 단순
-  홀짝으로 가르면 한쪽으로 몰린다.
+- 날짜는 오렌지 테이프(`.scrap-tape`, `formatTape` → `8.4 화`)이고 누르면 글 페이지로 간다.
+  요일은 한글 한 글자다. 테이프 서체는 Determination인데 한글이 없어 요일만 Pretendard로
+  떨어진다(`font-synthesis: none`으로 Determination 합성 볼드를 막는다).
+  월은 오렌지 테두리 스탬프(`.month-stamp`), sticky가 아니다.
+- **글 사이 간격은 글자로 적지 않는다** — "N일 뒤" 같은 표시 없이, 날수에 비례한 빈 공간만 둔다
+  (`28 + 일수×2`px, 최대 220px).
+- "더보기"는 글자 대신 이모지 하나(📖)다. 스크린리더용 `aria-label="더보기"`와 44px 터치 영역을
+  유지할 것.
 - 글 페이지(`/p/:id`)는 같은 종이를 기울이지 않고 폭 전체로 깐 `.scrap-sheet`다.
 - 종이 위 링크 색은 오렌지가 아니라 `--color-bg`(네이비)다 — 크림색 위 오렌지는 대비가 부족하다.
 
@@ -148,7 +151,7 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
   단일 웨이트 픽셀 서체라 `font-bold` 류를 겹치면 합성 볼드로 뭉개진다.
   테이프 날짜와 월 스탬프에도 쓴다.
 - **손글씨: Nanum Pen Script.** `index.html`에서 Google Fonts로 불러오고 `--font-hand`로 쓴다.
-  "더보기 →", 간격 메모, 제목 캡션에만 쓴다 — 본문에는 쓰지 않는다.
+  제목 캡션에만 쓴다 — 본문에는 쓰지 않는다.
 
 ## 컨벤션
 

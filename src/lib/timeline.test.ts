@@ -81,14 +81,14 @@ describe('plainLength', () => {
 });
 
 describe('weekdayOf / formatTape', () => {
-	it('요일을 영문 세 글자로 돌려준다', () => {
-		expect(weekdayOf('2026-09-19')).toBe('SAT');
-		expect(weekdayOf('2026-08-04')).toBe('TUE');
+	it('요일을 한 글자 한글로 돌려준다', () => {
+		expect(weekdayOf('2026-09-19')).toBe('토');
+		expect(weekdayOf('2026-08-04')).toBe('화');
 	});
 
 	it('테이프 라벨은 0 없는 월.일과 요일이다', () => {
-		expect(formatTape('2026-07-05')).toBe('7.5 SUN');
-		expect(formatTape('2026-12-31')).toBe('12.31 THU');
+		expect(formatTape('2026-07-05')).toBe('7.5 일');
+		expect(formatTape('2026-12-31')).toBe('12.31 목');
 	});
 });
 

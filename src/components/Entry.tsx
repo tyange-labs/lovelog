@@ -119,8 +119,14 @@ export default function Entry(props: { post: PostListItem }) {
 
 						<Show when={!isCompact() && isClamped()}>
 							<div class="entry-more-row">
-								<A href={postHref()} class="entry-more" onClick={markFromTimeline}>
-									더보기 →
+								<A
+									href={postHref()}
+									class="entry-more"
+									aria-label="더보기"
+									title="더보기"
+									onClick={markFromTimeline}
+								>
+									📖
 								</A>
 							</div>
 						</Show>
