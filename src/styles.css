@@ -343,19 +343,21 @@ body {
 	padding: 2rem 1.25rem 1.25rem;
 }
 
-/* 돌아가기: 프레임 왼쪽 아래에 떠 있는 동그란 버튼. 아래로 읽는 중엔 아래로 빠져 숨고,
-   스크롤을 올리거나 글 끝에 닿으면 떠오른다(is-visible, PostPage가 붙인다).
-   키보드로 초점이 오면 숨은 상태여도 보여준다. */
+/* 돌아가기: 글 종이 안에 sticky로 붙은 동그란 버튼. 긴 글을 읽는 동안엔 종이를 따라 화면
+   아래에 붙어 다니고, 글 끝에서는 종이 아래 모서리에 걸쳐 멈춘다(중심이 종이 아랫변 위).
+   아래로 읽는 중엔 아래로 빠져 숨고, 스크롤을 올리거나 글 끝에 닿으면 떠오른다
+   (is-visible, PostPage가 붙인다). 키보드로 초점이 오면 숨은 상태여도 보여준다. */
 .post-back {
-	position: fixed;
-	left: max(1rem, calc(50% - var(--frame-max-width) / 2 + 1rem));
+	position: sticky;
 	bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
-	z-index: 20;
+	z-index: 5;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	width: 2.75rem;
 	height: 2.75rem;
+	/* 종이 아래 패딩(1.25rem) + 버튼 반지름(1.375rem)만큼 끌어내려 아랫변에 걸친다. */
+	margin: 0.5rem 0 calc(-1.25rem - 1.375rem);
 	border-radius: 999px;
 	background-color: var(--color-bg);
 	color: var(--color-accent);

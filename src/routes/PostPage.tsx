@@ -45,9 +45,8 @@ export default function PostPage() {
 		queueMicrotask(updateBack);
 	});
 
-	// 아래 여백(pb-24)은 떠 있는 돌아가기 버튼 몫이다 — 글 끝에서 종이를 가리지 않게.
 	return (
-		<section class="px-4 pt-8 pb-24">
+		<section class="px-4 pt-8 pb-16">
 			<Show when={post.loading}>
 				<LoadingHeart />
 			</Show>
@@ -76,25 +75,24 @@ export default function PostPage() {
 						<Show when={loaded().title.trim().length > 0}>
 							<p class="entry-caption">— {loaded().title}</p>
 						</Show>
+						<A
+							href="/"
+							class="post-back"
+							classList={{ 'is-visible': showBack() }}
+							aria-label="타임라인으로"
+							title="타임라인으로"
+							onClick={(event) => {
+								if (didComeFromTimeline()) {
+									event.preventDefault();
+									window.history.back();
+								}
+							}}
+						>
+							<ArrowLeft size={20} stroke-width={2} aria-hidden="true" />
+						</A>
 					</article>
 				)}
 			</Show>
-
-			<A
-				href="/"
-				class="post-back"
-				classList={{ 'is-visible': showBack() }}
-				aria-label="타임라인으로"
-				title="타임라인으로"
-				onClick={(event) => {
-					if (didComeFromTimeline()) {
-						event.preventDefault();
-						window.history.back();
-					}
-				}}
-			>
-				<ArrowLeft size={20} stroke-width={2} aria-hidden="true" />
-			</A>
 		</section>
 	);
 }
