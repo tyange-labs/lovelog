@@ -5,21 +5,20 @@ on:
     branches: [main]
   workflow_dispatch:
 
-concurrency:
-  group: lovelog-deploy
-  cancel-in-progress: true
-
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # tyange-labs 조직 스코프에 `--label self-hosted`로 등록된 forgejo-runner에서 실행.
+    # 매 job이 새 node:lts-bookworm 컨테이너에서 돌므로 배포는 secrets.HOST(=127.0.0.1)로
+    # SSH해 호스트에 쓴다.
+    runs-on: self-hosted
     environment: deploy on aws
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: https://github.com/actions/checkout@v4
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+        uses: https://github.com/oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
@@ -46,11 +45,11 @@ jobs:
         run: bun run build
 
       - name: Upload build via SCP
-        uses: appleboy/scp-action@v0.1.7
+        uses: https://github.com/appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER_NAME }}
-          key: ${{ secrets.PRIVATE_SSH_KEY }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           source: 'dist'
           target: '${{ vars.DEPLOY_PATH }}/releases/${{ github.sha }}'
           strip_components: 0
@@ -58,11 +57,11 @@ jobs:
           rm: true
 
       - name: Switch release and reload Nginx
-        uses: appleboy/ssh-action@v1.0.3
+        uses: https://github.com/appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER_NAME }}
-          key: ${{ secrets.PRIVATE_SSH_KEY }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: |
             set -e
             DEPLOY_PATH="${{ vars.DEPLOY_PATH }}"
