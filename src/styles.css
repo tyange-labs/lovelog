@@ -36,7 +36,6 @@
 		'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui,
 		'Apple SD Gothic Neo', sans-serif;
 	--font-wordmark: 'Determination', 'Courier New', monospace;
-	--font-hand: 'Nanum Pen Script', cursive;
 }
 
 :root {
@@ -261,9 +260,8 @@ body {
 }
 
 .entry-caption {
-	margin-top: 0.25rem;
-	font-family: var(--font-hand);
-	font-size: 1.25rem;
+	margin-top: 0.5rem;
+	font-size: 0.875rem;
 	text-align: right;
 	color: var(--color-scrap-muted);
 }
