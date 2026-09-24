@@ -248,7 +248,7 @@ body {
 }
 
 .entry-more:hover {
-	transform: rotate(45deg);
+	transform: translate(2px, -2px);
 }
 
 @media (prefers-reduced-motion: reduce) {
