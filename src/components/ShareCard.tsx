@@ -27,7 +27,7 @@ export default function ShareCard(props: { post: Post; ref?: (el: HTMLDivElement
 				</article>
 			</div>
 			<div class="share-card-sign">
-				<span class="share-card-wordmark">THE LOVELOG</span>
+				<span class="share-card-wordmark">LOVELOG</span>
 				<span class="share-card-url">lovelog.tyange.com</span>
 			</div>
 		</div>

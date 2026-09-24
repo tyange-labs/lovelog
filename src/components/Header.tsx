@@ -8,7 +8,7 @@ export default function Header() {
 					href="/"
 					class="font-wordmark relative top-[2px] text-2xl tracking-[0.08em] text-[var(--color-accent)]"
 				>
-					THE LOVELOG
+					LOVELOG
 				</A>
 			</div>
 		</header>

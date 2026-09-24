@@ -187,8 +187,9 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
 
 ## 사이트 이름·파비콘
 
-- 사이트 제목과 메타 태그의 이름은 **`LOVELOG`**다("THE" 없음, 이름 두 사람 문구 없음 — 사용자 요청).
-  화면 워드마크(헤더, PNG 카드)는 여전히 `THE LOVELOG`다.
+- 이름은 어디서나 **`LOVELOG`**다("THE" 없음 — 사용자 요청): 사이트 제목, 메타 태그, 헤더 워드마크,
+  PNG 카드, `og.jpg`. 메타 설명은 짧게 둔다 — `description`/`og:description`은 `연결.`,
+  `og:image:alt`는 `LOVELOG`. 긴 설명 문구를 덧붙이지 말 것.
 - 파비콘은 로딩 하트(`LoadingHeart`의 픽셀 원 + 하트 구멍)를 남색 바탕에 얹은 것:
   `public/favicon.svg`(원본), `favicon-32.png`, `apple-touch-icon.png`(180, 모서리 없이 꽉 채움 —
   iOS가 알아서 둥글린다). PNG는 SVG를 Playwright로 찍어 만들었다.
@@ -205,7 +206,7 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
   92조각으로 나뉘어 `unicode-range`로 필요한 것만 받는다. `--font-sans`의 첫 후보는
   패밀리명 그대로 **`Pretendard Variable`**이어야 한다.
   CDN이 죽어도 시스템 폰트로 떨어질 뿐 사이트는 정상 동작한다.
-- **워드마크(THE LOVELOG): Determination.** `public/fonts/determination/`에 자체 호스팅하며
+- **워드마크(LOVELOG): Determination.** `public/fonts/determination/`에 자체 호스팅하며
   `--font-wordmark`(Tailwind `font-wordmark` 유틸)로 쓴다.
   **CC BY 3.0이고 재배포 시 원본 아카이브 파일 동반이 조건**이라 `license.txt`,
   `readme.txt`를 같은 폴더에 뒀다. **지우지 말 것.**
