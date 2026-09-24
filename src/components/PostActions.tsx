@@ -38,7 +38,7 @@ function LinkButton(props: { label: string; icon: JSX.Element; url: () => string
 // 글 페이지 아래의 공유 버튼 셋: 글 링크(/p/:id), 타임라인 속 자리(/?at=), 이미지(PNG).
 export default function PostActions(props: { post: Post }) {
 	const [isImageOpen, setIsImageOpen] = createSignal(false);
-	const icon = { size: 20, 'stroke-width': 2, 'aria-hidden': true } as const;
+	const icon = { size: 16, 'stroke-width': 2, 'aria-hidden': true } as const;
 
 	return (
 		<>
