@@ -336,42 +336,51 @@ body {
 /* --- 글 하나 보기 (/p/:id) ------------------------------------------------
    긴 글을 끝까지 읽는 화면이라 종이는 기울이지 않고 폭을 다 쓴다. */
 
+.scrap-sheet {
+	width: 100%;
+	max-width: none;
+	margin: 1.5rem 0 0;
+	padding: 2rem 1.25rem 1.25rem;
+}
+
+/* 돌아가기: 프레임 왼쪽 아래에 떠 있는 동그란 버튼. 아래로 읽는 중엔 아래로 빠져 숨고,
+   스크롤을 올리거나 글 끝에 닿으면 떠오른다(is-visible, PostPage가 붙인다).
+   키보드로 초점이 오면 숨은 상태여도 보여준다. */
 .post-back {
-	display: inline-flex;
+	position: fixed;
+	left: max(1rem, calc(50% - var(--frame-max-width) / 2 + 1rem));
+	bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+	z-index: 20;
+	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 2.75rem;
-	min-height: 2.75rem;
-	margin: -0.5rem 0 -0.5rem -0.75rem;
-	color: var(--color-scrap-ink);
-	transition: transform 200ms ease;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 999px;
+	background-color: var(--color-bg);
+	color: var(--color-accent);
+	box-shadow: 0 8px 20px rgb(0 0 0 / 0.5);
+	opacity: 0;
+	transform: translateY(calc(100% + 1.5rem));
+	pointer-events: none;
+	transition:
+		transform 220ms ease,
+		opacity 220ms ease;
+}
+
+.post-back.is-visible,
+.post-back:focus-visible {
+	opacity: 1;
+	transform: none;
+	pointer-events: auto;
 }
 
 .post-back:hover {
-	transform: translateX(-2px);
+	filter: brightness(1.2);
 }
 
 @media (prefers-reduced-motion: reduce) {
 	.post-back {
 		transition: none;
 	}
-}
-
-/* 글 끝 줄: 왼쪽에 돌아가기, 오른쪽에 제목 캡션. */
-.post-foot {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-top: 0.75rem;
-}
-
-.post-foot .entry-caption {
-	margin-top: 0;
-}
-
-.scrap-sheet {
-	width: 100%;
-	max-width: none;
-	margin: 1.5rem 0 0;
-	padding: 2rem 1.25rem 1.25rem;
 }
