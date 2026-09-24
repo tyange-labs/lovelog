@@ -49,12 +49,16 @@ src/
     Entry.tsx          종이 조각 한 장 — 테이프 날짜 + (제목 | 지연 로드한 본문 미리보기) + ↗
     MonthHeader.tsx    월 스탬프
     LoadingHeart.tsx   픽셀 하트 로딩 인디케이터
-    ShareButton.tsx    글 페이지의 공유 아이콘 — 타임라인 자리 링크(/?at=<id>)를 공유 시트/복사
+    PostActions.tsx    글 페이지 아래 공유 버튼 셋 — 글 링크 / 타임라인 위치 / 이미지로
+    ImageSheet.tsx     "이미지로" 시트 — ShareCard를 PNG로 찍어 미리보기 + 저장·공유
+    ShareCard.tsx      PNG로 찍는 카드(책상 위 종이, 540px × 2배 = 1080px, 기본 4:5)
   lib/
     cms.ts            tyange-cms-api 연동 (getPosts / getPostsCached / getPost / isLovelogPost)
     body.ts           글 본문 지연 로드 + 캐시 (loadBody / peekBody)
     navigation.ts     타임라인에서 글 페이지로 들어왔는지 기억 (돌아가기 링크용)
     deeplink.ts       공유 링크(/?at=<id>) 만들기 + 도착 시 그 글로 이동·고정
+    share.ts          링크·PNG 공유(공유 시트 → 없으면 복사/내려받기)
+    font-subset.ts    PNG에 박아 넣을 웹폰트 조각 고르기(unicode-range) + data URL 변환
     timeline.ts        순수 함수: buildTimelineRows, isShortForm, postTime, plainLength
     markdown.ts        marked 래퍼
   styles.css          디자인 토큰 + 스크랩북 스타일
@@ -142,9 +146,27 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
   이관 시각이라 무의미하고, 날짜를 따로 고쳐 올린 글은 시각이 어긋나므로 **짧은 글이면서 한국
   날짜가 `published_at`과 같을 때만** 붙인다. 같은 날 글의 순서는 cms-api가 이미
   `published_at DESC, created_at DESC`로 맞춰 준다.
-- **공유 링크는 글 페이지가 아니라 타임라인 속 자리로 연다: `/?at=<post_id>`.** 글 페이지 종이
-  오른쪽 위의 공유 아이콘(`ShareButton`, `aria-label="링크 공유"`)이 만든다 — 공유 시트가 있으면
-  공유 시트, 없으면 클립보드 복사(체크 아이콘으로 잠깐 바뀜). 도착하면 `Timeline`이 그 글
+- **공유는 전부 글 페이지에서 한다 — 타임라인에는 공유 UI를 두지 않는다.** 글 종이 아래
+  `PostActions`의 버튼 셋(아이콘 + 이름, 3칸 그리드): **글 링크**(`/p/:id`), **타임라인
+  위치**(`/?at=<id>`), **이미지로**(PNG). 링크가 두 종류라 아이콘만으로는 구분이 안 돼 이 셋만은
+  이름을 붙였다(사용자가 목업 비교 후 고름). 링크는 공유 시트가 있으면 공유 시트, 없으면 클립보드
+  복사 후 버튼 이름이 잠깐 "복사했어요"로 바뀐다.
+- **PNG(이미지로)**: `<dialog>` 바텀 시트(`ImageSheet`)가 열리면 화면 밖(`.share-card-stage`)에
+  `ShareCard`를 그려 `modern-screenshot`으로 찍는다(라이브러리는 이때 동적 import). 디자인은 목업
+  A안 "책상 위 종이" — 어두운 책상 위에 글 ID 기울기의 종이, 테이프 날짜·시각, 아래 워드마크와
+  주소. 540px 폭을 2배로 찍어 1080px, 높이는 4:5(1350px)가 기본이고 긴 글이면 늘어난다.
+  "저장·공유"는 파일 공유가 되는 곳(iOS·Android)에선 공유 시트(사진에 저장/바로 보내기), 아니면
+  내려받기. 찍을 때 함정 셋:
+  1. **웹폰트 스타일시트에 `crossorigin="anonymous"`가 있어야 한다**(`index.html`). 없으면
+     교차 출처 시트의 규칙을 못 읽어 본문이 명조 대신 대체 글꼴로 찍힌다.
+  2. 라이브러리 기본 폰트 임베드는 `unicode-range`를 안 보고 **쓰인 패밀리의 조각 전부**(Pretendard
+     92개 + 본명조 수백 개)를 받는다. 그래서 `font-subset.ts`가 카드 글자를 덮는 조각만 골라
+     직접 받아 data URL로 박은 CSS를 `font.cssText`로 넘긴다. cssText는 **그대로 쓰일 뿐 받아
+     주지 않으므로** 바깥 url()로 넘기면 글꼴이 빠진다(찍은 결과는 SVG 이미지라 외부 파일을 못 읽음).
+  3. 본문 사진은 글 페이지가 이미 CORS 없이 받아 캐시해 둔 상태라, 그 캐시를 다시 쓰면 CORS에
+     막혀 빈 칸으로 찍힌다. `inlineImages`가 `cache: 'no-store'` + CORS로 직접 받아 data URL로
+     바꿔 끼운다. (`img.decode()`는 쓰지 말 것 — 프레임이 안 그려지는 탭에선 끝나지 않는다.)
+- **타임라인 위치 링크 `/?at=<post_id>`로 들어오면** `Timeline`이 그 글
   (`id="post-<id>"`)을 화면 가운데로 옮기고 `is-target`(오렌지 테두리가 잠깐 켜졌다 꺼짐)을
   붙인다. 위쪽 글 본문이 늦게 들어와 문서가 길어지므로 `holdInView`가 4초 동안(또는 사용자가
   스크롤을 시작할 때까지) `ResizeObserver`로 자리를 다시 맞춘다 — iOS Safari에 scroll
@@ -194,7 +216,7 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
 
 ## 다음 단계
 
-1. 글 페이지 PNG 추출(공유용 이미지) — 미착수.
+1. (완료 기록) 글 페이지 공유 버튼 셋 + PNG 추출은 2026-09-24에 들어갔다.
    (tyange-cms 에디터의 200자 제한은 2026-09-24에 들어갔다. 기준일·글자 수·태그 조건은
    tyange-cms `app/utils/short-form.ts`에도 같은 값이 있으니 **함께 고친다.**)
 2. `og.jpg`가 아직 결혼전시회 시절 이미지다. 타임라인에 맞는 썸네일로 교체할지 판단.

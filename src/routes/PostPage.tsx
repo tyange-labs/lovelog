@@ -6,7 +6,7 @@ import { renderMarkdown } from '#/lib/markdown';
 import { didComeFromTimeline } from '#/lib/navigation';
 import { postTime, weekdayOf } from '#/lib/timeline';
 import LoadingHeart from '#/components/LoadingHeart';
-import ShareButton from '#/components/ShareButton';
+import PostActions from '#/components/PostActions';
 
 // 이 이상 움직여야 방향이 바뀐 것으로 본다. 관성 스크롤의 잔떨림에 버튼이 깜빡이지 않게 한다.
 const SCROLL_THRESHOLD_PX = 4;
@@ -64,41 +64,43 @@ export default function PostPage() {
 
 			<Show when={post()}>
 				{(loaded) => (
-					<article class="scrap scrap-sheet">
-						<p class="scrap-tape">
-							{[
-								loaded().published_at.replaceAll('-', '.'),
-								weekdayOf(loaded().published_at),
-								postTime(loaded())
-							]
-								.filter(Boolean)
-								.join(' ')}
-						</p>
-						<ShareButton postId={loaded().post_id} />
-						<div
-							class="log-body"
-							// eslint-disable-next-line solid/no-innerhtml
-							innerHTML={renderMarkdown(loaded().content)}
-						/>
-						<Show when={loaded().title.trim().length > 0}>
-							<p class="entry-caption">— {loaded().title}</p>
-						</Show>
-						<A
-							href="/"
-							class="post-back"
-							classList={{ 'is-visible': showBack() }}
-							aria-label="타임라인으로"
-							title="타임라인으로"
-							onClick={(event) => {
-								if (didComeFromTimeline()) {
-									event.preventDefault();
-									window.history.back();
-								}
-							}}
-						>
-							<ArrowLeft size={20} stroke-width={2} aria-hidden="true" />
-						</A>
-					</article>
+					<>
+						<article class="scrap scrap-sheet">
+							<p class="scrap-tape">
+								{[
+									loaded().published_at.replaceAll('-', '.'),
+									weekdayOf(loaded().published_at),
+									postTime(loaded())
+								]
+									.filter(Boolean)
+									.join(' ')}
+							</p>
+							<div
+								class="log-body"
+								// eslint-disable-next-line solid/no-innerhtml
+								innerHTML={renderMarkdown(loaded().content)}
+							/>
+							<Show when={loaded().title.trim().length > 0}>
+								<p class="entry-caption">— {loaded().title}</p>
+							</Show>
+							<A
+								href="/"
+								class="post-back"
+								classList={{ 'is-visible': showBack() }}
+								aria-label="타임라인으로"
+								title="타임라인으로"
+								onClick={(event) => {
+									if (didComeFromTimeline()) {
+										event.preventDefault();
+										window.history.back();
+									}
+								}}
+							>
+								<ArrowLeft size={20} stroke-width={2} aria-hidden="true" />
+							</A>
+						</article>
+						<PostActions post={loaded()} />
+					</>
 				)}
 			</Show>
 		</section>

@@ -343,24 +343,189 @@ body {
 	padding: 2rem 1.25rem 1.25rem;
 }
 
-/* 공유: 테이프 맞은편(종이 오른쪽 위) 모서리의 아이콘. 누르면 타임라인 속 이 글의 자리로
-   여는 링크(/?at=<id>)를 공유 시트로 보내거나 복사한다. */
-.post-share {
-	position: absolute;
-	top: 0.25rem;
-	right: 0.25rem;
+/* 글 페이지 아래 공유 버튼 셋: 글 링크 / 타임라인 위치 / 이미지로. 링크가 두 종류라 아이콘만으로는
+   구분이 안 돼 이름을 붙인다. 돌아가기 버튼이 종이 아랫변에 걸쳐 내려오므로 그만큼 띄운다. */
+.post-actions {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.5rem;
+	margin-top: 2.75rem;
+}
+
+.post-action {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.375rem;
+	min-height: 4.5rem;
+	border: 1px solid var(--color-scrap-muted);
+	border-radius: 0.75rem;
+	color: var(--color-ink);
+	font-size: 0.8125rem;
+	transition: border-color 150ms ease;
+}
+
+.post-action svg {
+	color: var(--color-accent);
+}
+
+.post-action:hover,
+.post-action:focus-visible {
+	border-color: var(--color-ink-muted);
+}
+
+/* 이미지로 저장: 아래에서 올라오는 시트. <dialog>의 showModal이 포커스 가두기와 Esc 닫기를 맡는다. */
+.image-sheet {
+	width: 100%;
+	max-width: var(--frame-max-width);
+	max-height: 100dvh;
+	margin: auto auto 0;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--color-ink);
+}
+
+.image-sheet::backdrop {
+	background-color: rgb(0 0 0 / 0.6);
+}
+
+.image-sheet-panel {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.25rem;
+	padding: 0.75rem 1.25rem calc(2rem + env(safe-area-inset-bottom, 0px));
+	border-radius: 1.25rem 1.25rem 0 0;
+	background-color: var(--color-shell);
+}
+
+.image-sheet-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.image-sheet-title {
+	font-size: 0.9375rem;
+	font-weight: 700;
+}
+
+.image-sheet-close {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	width: 2.75rem;
 	height: 2.75rem;
-	color: var(--color-scrap-muted);
-	transition: color 150ms ease;
+	margin-right: -0.75rem;
+	color: var(--color-ink-muted);
 }
 
-.post-share:hover,
-.post-share:focus-visible {
+.image-sheet-preview {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	min-height: 12rem;
+}
+
+.image-sheet-preview img {
+	width: auto;
+	max-width: 100%;
+	max-height: 55dvh;
+	box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+
+.image-sheet-retry {
+	padding: 0.5rem 1rem;
+	border: 1px solid var(--color-ink-muted);
+}
+
+.image-sheet-save {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	min-height: 3.25rem;
+	border-radius: 0.75rem;
+	background-color: var(--color-accent);
 	color: var(--color-scrap-ink);
+	font-size: 0.9375rem;
+	font-weight: 700;
+}
+
+.image-sheet-save:disabled {
+	opacity: 0.5;
+}
+
+/* PNG로 찍을 카드는 화면 밖에 그려 둔다(찍는 동안만 존재). 540px 폭 × 2배 = 1080px 이미지. */
+.share-card-stage {
+	position: fixed;
+	top: 0;
+	left: -10000px;
+	pointer-events: none;
+}
+
+.share-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2.5rem;
+	box-sizing: border-box;
+	width: 540px;
+	min-height: 675px;
+	padding: 3.5rem 2.5rem 2.25rem;
+	background-color: var(--color-paper);
+	color: var(--color-ink);
+}
+
+.share-card-desk {
+	display: flex;
+	flex-grow: 1;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+.share-card-scrap {
+	width: 420px;
+	margin: 0;
+	padding: 2.75rem 1.875rem 1.625rem;
+}
+
+.share-card-scrap .log-body {
+	font-size: 1.1875rem;
+	line-height: 1.8;
+}
+
+.share-card-scrap .scrap-tape {
+	top: -0.8rem;
+	left: 1.5rem;
+	font-size: 0.875rem;
+}
+
+.share-card-sign {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.375rem;
+}
+
+.share-card-wordmark {
+	font-family: var(--font-wordmark);
+	font-size: 1.25rem;
+	letter-spacing: 0.12em;
+	color: var(--color-accent);
+}
+
+.share-card-url {
+	white-space: nowrap;
+	font-size: 0.75rem;
+	letter-spacing: 0.04em;
+	color: var(--color-ink-muted);
 }
 
 /* 공유 링크(/?at=<id>)로 들어왔을 때 그 글을 잠깐 짚어 준다. */
