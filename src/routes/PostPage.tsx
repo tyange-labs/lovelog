@@ -1,5 +1,6 @@
 import { createResource, Show } from 'solid-js';
 import { A, useParams } from '@solidjs/router';
+import ArrowLeft from 'lucide-solid/icons/arrow-left';
 import { getPost } from '#/lib/cms';
 import { renderMarkdown } from '#/lib/markdown';
 import { didComeFromTimeline } from '#/lib/navigation';
@@ -15,6 +16,8 @@ export default function PostPage() {
 			<A
 				href="/"
 				class="post-back"
+				aria-label="타임라인으로"
+				title="타임라인으로"
 				onClick={(event) => {
 					if (didComeFromTimeline()) {
 						event.preventDefault();
@@ -22,7 +25,7 @@ export default function PostPage() {
 					}
 				}}
 			>
-				← 타임라인으로
+				<ArrowLeft size={22} stroke-width={1.75} aria-hidden="true" />
 			</A>
 
 			<Show when={post.loading}>

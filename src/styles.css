@@ -277,16 +277,24 @@ body {
    긴 글을 끝까지 읽는 화면이라 종이는 기울이지 않고 폭을 다 쓴다. */
 
 .post-back {
-	display: inline-block;
-	margin-bottom: 1.5rem;
-	font-size: 0.875rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 2.75rem;
+	min-height: 2.75rem;
+	margin: -0.5rem 0 0.75rem -0.75rem;
 	color: var(--color-accent);
-	opacity: 0.8;
-	text-decoration: none;
+	transition: transform 200ms ease;
 }
 
 .post-back:hover {
-	text-decoration: underline;
+	transform: translateX(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.post-back {
+		transition: none;
+	}
 }
 
 .scrap-sheet {
