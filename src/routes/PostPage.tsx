@@ -13,21 +13,6 @@ export default function PostPage() {
 
 	return (
 		<section class="px-4 py-8">
-			<A
-				href="/"
-				class="post-back"
-				aria-label="타임라인으로"
-				title="타임라인으로"
-				onClick={(event) => {
-					if (didComeFromTimeline()) {
-						event.preventDefault();
-						window.history.back();
-					}
-				}}
-			>
-				<ArrowLeft size={22} stroke-width={1.75} aria-hidden="true" />
-			</A>
-
 			<Show when={post.loading}>
 				<LoadingHeart />
 			</Show>
@@ -59,6 +44,21 @@ export default function PostPage() {
 					</article>
 				)}
 			</Show>
+
+			<A
+				href="/"
+				class="post-back"
+				aria-label="타임라인으로"
+				title="타임라인으로"
+				onClick={(event) => {
+					if (didComeFromTimeline()) {
+						event.preventDefault();
+						window.history.back();
+					}
+				}}
+			>
+				<ArrowLeft size={22} stroke-width={1.75} aria-hidden="true" />
+			</A>
 		</section>
 	);
 }

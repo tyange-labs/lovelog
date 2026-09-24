@@ -342,7 +342,7 @@ body {
 	justify-content: center;
 	min-width: 2.75rem;
 	min-height: 2.75rem;
-	margin: -0.5rem 0 0.75rem -0.75rem;
+	margin: 1.25rem 0 0 -0.75rem;
 	color: var(--color-accent);
 	transition: transform 200ms ease;
 }
