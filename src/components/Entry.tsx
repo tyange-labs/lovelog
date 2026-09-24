@@ -92,12 +92,15 @@ export default function Entry(props: { post: PostListItem }) {
 				</A>
 
 				<Show when={title()}>
-					<div class="scrap-title-row">
-						<A href={postHref()} class="scrap-title" onClick={markFromTimeline}>
-							{title()}
-						</A>
-						<MoreLink href={postHref()} />
-					</div>
+					<A href={postHref()} class="scrap-title-link" onClick={markFromTimeline}>
+						<span class="scrap-title">{title()}</span>
+						<ArrowUpRight
+							class="scrap-title-arrow"
+							size={22}
+							stroke-width={1.75}
+							aria-hidden="true"
+						/>
+					</A>
 				</Show>
 
 				<Show when={!title()}>

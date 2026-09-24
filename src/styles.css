@@ -233,11 +233,14 @@ body {
 	transform: rotate(-3deg);
 }
 
-/* 제목이 있는 글은 본문 대신 제목 한 줄과 화살표만 둔다. */
-.scrap-title-row {
+/* 제목이 있는 글은 본문 대신 제목 한 줄과 화살표만 둔다. 둘을 한 링크로 묶어 제목 영역
+   어디에 올려도 밑줄과 화살표 움직임이 같이 일어난다. */
+.scrap-title-link {
 	display: flex;
 	align-items: center;
 	gap: 1rem;
+	color: var(--color-scrap-ink);
+	text-decoration: none;
 }
 
 .scrap-title {
@@ -245,18 +248,26 @@ body {
 	font-weight: 700;
 	line-height: 1.3;
 	letter-spacing: -0.02em;
-	color: var(--color-scrap-ink);
-	text-decoration: none;
 }
 
-.scrap-title:hover {
+.scrap-title-arrow {
+	flex-shrink: 0;
+	transition: transform 200ms ease;
+}
+
+.scrap-title-link:hover .scrap-title {
 	text-decoration: underline;
 	text-underline-offset: 0.25rem;
 }
 
-.scrap-title-row .entry-more {
-	margin: -0.5rem -0.75rem -0.5rem 0;
-	flex-shrink: 0;
+.scrap-title-link:hover .scrap-title-arrow {
+	transform: translate(2px, -2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.scrap-title-arrow {
+		transition: none;
+	}
 }
 
 /* 긴 글은 2줄에서 말줄임표로 자르고, 나머지는 글 페이지(/p/:id)에서 읽는다.
