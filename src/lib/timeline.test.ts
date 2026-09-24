@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { buildTimelineRows, gapDays, isShortForm, plainLength } from './timeline';
+import {
+	buildTimelineRows,
+	formatTape,
+	gapDays,
+	isShortForm,
+	plainLength,
+	scrapPose,
+	weekdayOf
+} from './timeline';
 import type { PostListItem } from './cms';
 
 function post(published_at: string, post_id = published_at): PostListItem {
@@ -9,6 +17,11 @@ function post(published_at: string, post_id = published_at): PostListItem {
 describe('gapDays', () => {
 	it('두 글 사이의 일수를 센다', () => {
 		expect(gapDays(post('2026-08-04'), post('2026-07-31'))).toBe(4);
+	});
+
+	it('월 길이가 다른 경계에서도 정확하다', () => {
+		expect(gapDays(post('2026-03-01'), post('2026-02-28'))).toBe(1);
+		expect(gapDays(post('2026-05-01'), post('2026-04-30'))).toBe(1);
 	});
 
 	it('같은 날이면 0이다', () => {
@@ -64,5 +77,33 @@ describe('plainLength', () => {
 
 	it('이미지만 있는 글은 0이다', () => {
 		expect(plainLength('![](https://tyange.com/api/cms/images/a.png)')).toBe(0);
+	});
+});
+
+describe('weekdayOf / formatTape', () => {
+	it('요일을 영문 세 글자로 돌려준다', () => {
+		expect(weekdayOf('2026-09-19')).toBe('SAT');
+		expect(weekdayOf('2026-08-04')).toBe('TUE');
+	});
+
+	it('테이프 라벨은 0 없는 월.일과 요일이다', () => {
+		expect(formatTape('2026-07-05')).toBe('7.5 SUN');
+		expect(formatTape('2026-12-31')).toBe('12.31 THU');
+	});
+});
+
+describe('scrapPose', () => {
+	it('같은 ID는 늘 같은 자세다', () => {
+		expect(scrapPose('49e3a590-7bdb')).toEqual(scrapPose('49e3a590-7bdb'));
+	});
+
+	it('기울기는 ±1.4°, 어긋남은 0~1 안에 있다', () => {
+		for (const id of ['a', 'b', '49e3a590-7bdb-4b86', '82f75615-e661-4fa4-a9be', '가나다']) {
+			const { tilt, shift } = scrapPose(id);
+			expect(tilt).toBeGreaterThanOrEqual(-1.4);
+			expect(tilt).toBeLessThanOrEqual(1.4);
+			expect(shift).toBeGreaterThanOrEqual(0);
+			expect(shift).toBeLessThanOrEqual(1);
+		}
 	});
 });
