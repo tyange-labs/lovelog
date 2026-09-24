@@ -234,20 +234,27 @@ body {
 	justify-content: flex-end;
 }
 
+/* 아이콘만 있는 링크라 터치 영역(44px)은 유지하되, 음수 여백으로 종이 아랫단이
+   불필요하게 길어지지 않게 한다. */
 .entry-more {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	min-width: 2.75rem;
 	min-height: 2.75rem;
-	font-size: 1.375rem;
-	line-height: 1;
-	text-decoration: none;
-	transition: transform 120ms ease;
+	margin: -0.25rem -0.75rem -0.5rem 0;
+	color: var(--color-scrap-ink);
+	transition: transform 200ms ease;
 }
 
 .entry-more:hover {
-	transform: rotate(-8deg) scale(1.1);
+	transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.entry-more {
+		transition: none;
+	}
 }
 
 /* 짧은 글(200자 규칙 이후)은 자르지 않고 본문을 바로 크게 보여준다. */

@@ -1,5 +1,6 @@
 import { createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { A } from '@solidjs/router';
+import Compass from 'lucide-solid/icons/compass';
 import type { PostListItem } from '#/lib/cms';
 import { loadBody, peekBody } from '#/lib/body';
 import type { PostBody } from '#/lib/body';
@@ -126,7 +127,7 @@ export default function Entry(props: { post: PostListItem }) {
 									title="더보기"
 									onClick={markFromTimeline}
 								>
-									📖
+									<Compass size={22} stroke-width={1.75} aria-hidden="true" />
 								</A>
 							</div>
 						</Show>
