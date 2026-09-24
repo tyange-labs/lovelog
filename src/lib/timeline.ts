@@ -6,10 +6,7 @@ export const SHORT_FORM_SINCE = '2026-09-23';
 
 export const SHORT_FORM_LIMIT = 200;
 
-export type TimelineRow =
-	| { kind: 'month'; month: string }
-	| { kind: 'entry'; post: PostListItem }
-	| { kind: 'gap'; days: number };
+export type TimelineRow = { kind: 'month'; month: string } | { kind: 'entry'; post: PostListItem };
 
 function toUtcDays(dateString: string): number {
 	const [year, month, day] = dateString.split('-').map(Number);
@@ -24,13 +21,8 @@ export function isShortForm(post: PostListItem, since: string = SHORT_FORM_SINCE
 	return post.published_at >= since;
 }
 
-// 인접한 두 글(next가 최신, prev가 더 오래된 글) 사이의 일수 차이.
-export function gapDays(next: PostListItem, prev: PostListItem): number {
-	return toUtcDays(next.published_at) - toUtcDays(prev.published_at);
-}
-
 // posts는 published_at 내림차순(최신 먼저)으로 들어온다고 가정한다 — cms-api 응답 순서 그대로.
-// 월이 바뀔 때 월 구분 행을, 글 사이 간격이 하루를 넘으면 간격 행을 끼워 넣는다.
+// 월이 바뀔 때마다 월 구분 행을 끼워 넣는다. 글 사이 여백은 날수와 상관없이 일정하다.
 export function buildTimelineRows(posts: PostListItem[]): TimelineRow[] {
 	const rows: TimelineRow[] = [];
 
@@ -41,14 +33,6 @@ export function buildTimelineRows(posts: PostListItem[]): TimelineRow[] {
 		}
 
 		rows.push({ kind: 'entry', post });
-
-		const next = posts[index + 1];
-		if (next) {
-			const gap = gapDays(post, next);
-			if (gap > 1) {
-				rows.push({ kind: 'gap', days: gap });
-			}
-		}
 	});
 
 	return rows;

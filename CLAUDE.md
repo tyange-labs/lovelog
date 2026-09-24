@@ -48,13 +48,12 @@ src/
     Header.tsx        sticky 워드마크
     Entry.tsx          종이 조각 한 장 — 지연 로드 + 테이프 날짜 + 2줄 미리보기 + 더보기
     MonthHeader.tsx    월 스탬프
-    GapMarker.tsx      글 사이 여백 (날수에 비례, 글자 없음)
     LoadingHeart.tsx   픽셀 하트 로딩 인디케이터
   lib/
     cms.ts            tyange-cms-api 연동 (getPosts / getPostsCached / getPost / isLovelogPost)
     body.ts           글 본문 지연 로드 + 캐시 (loadBody / peekBody)
     navigation.ts     타임라인에서 글 페이지로 들어왔는지 기억 (돌아가기 링크용)
-    timeline.ts        순수 함수: gapDays, buildTimelineRows, isShortForm, plainLength
+    timeline.ts        순수 함수: buildTimelineRows, isShortForm, plainLength
     markdown.ts        marked 래퍼
   styles.css          디자인 토큰 + 스크랩북 스타일
 ```
@@ -96,16 +95,15 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
   요일은 한글 한 글자다. 테이프 서체는 Determination인데 한글이 없어 요일만 Pretendard로
   떨어진다(`font-synthesis: none`으로 Determination 합성 볼드를 막는다).
   월은 오렌지 테두리 스탬프(`.month-stamp`), sticky가 아니다.
-- **글 사이 간격은 글자로 적지 않는다** — "N일 뒤" 같은 표시 없이, 날수에 비례한 빈 공간만 둔다
-  (`28 + 일수×2`px, 최대 220px).
+- **글 사이·월 사이 여백은 날수와 상관없이 일정하다.** "N일 뒤" 같은 표시도, 날수에 비례해
+  늘어나는 여백도 두지 않는다 — 둘 다 해봤고 102일 공백 같은 곳에서 화면이 텅 비어 뺐다.
 - "더보기"는 글자 대신 이모지 하나(📖)다. 스크린리더용 `aria-label="더보기"`와 44px 터치 영역을
   유지할 것.
 - 글 페이지(`/p/:id`)는 같은 종이를 기울이지 않고 폭 전체로 깐 `.scrap-sheet`다.
 - 종이 위 링크 색은 오렌지가 아니라 `--color-bg`(네이비)다 — 크림색 위 오렌지는 대비가 부족하다.
 
-- `buildTimelineRows`(`lib/timeline.ts`)가 `posts`(최신순) 하나로 월 구분·글·간격 세 종류의
-  행을 만든다. 월이 바뀌면 `month` 행, 인접한 두 글 사이가 하루를 넘으면 `gap` 행을 끼워
-  넣는다. `Timeline.tsx`는 이 배열을 그대로 순회만 한다 — 그루핑 로직을 컴포넌트에 넣지 말 것.
+- `buildTimelineRows`(`lib/timeline.ts`)가 `posts`(최신순) 하나로 월 구분·글 두 종류의
+  행을 만든다. 월이 바뀌면 `month` 행을 끼워 넣는다. `Timeline.tsx`는 이 배열을 그대로 순회만 한다 — 그루핑 로직을 컴포넌트에 넣지 말 것.
 - `Entry.tsx`는 `post_id`별로 `loadBody`를 한 번만 부른다(`lib/body.ts`의 모듈 스코프
   `bodyCache`, Promise를 캐시해 재요청·재마운트에도 요청이 한 번만 나간다). 실패하면
   캐시에서 지워 "다시 시도"가 재요청하게 한다.

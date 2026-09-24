@@ -4,7 +4,6 @@ import { buildTimelineRows } from '#/lib/timeline';
 import type { TimelineRow } from '#/lib/timeline';
 import Entry from '#/components/Entry';
 import MonthHeader from '#/components/MonthHeader';
-import GapMarker from '#/components/GapMarker';
 import LoadingHeart from '#/components/LoadingHeart';
 
 // row.kind에 따라 분기한다. row는 buildTimelineRows가 새 배열을 만들 때마다 새 객체로
@@ -12,10 +11,6 @@ import LoadingHeart from '#/components/LoadingHeart';
 function TimelineRowView(props: { row: TimelineRow }) {
 	if (props.row.kind === 'month') {
 		return <MonthHeader month={props.row.month} />;
-	}
-
-	if (props.row.kind === 'gap') {
-		return <GapMarker days={props.row.days} />;
 	}
 
 	return <Entry post={props.row.post} />;
