@@ -38,27 +38,28 @@ export default function PostPage() {
 							// eslint-disable-next-line solid/no-innerhtml
 							innerHTML={renderMarkdown(loaded().content)}
 						/>
-						<Show when={loaded().title.trim().length > 0}>
-							<p class="entry-caption">— {loaded().title}</p>
-						</Show>
+						<div class="post-foot">
+							<A
+								href="/"
+								class="post-back"
+								aria-label="타임라인으로"
+								title="타임라인으로"
+								onClick={(event) => {
+									if (didComeFromTimeline()) {
+										event.preventDefault();
+										window.history.back();
+									}
+								}}
+							>
+								<ArrowLeft size={22} stroke-width={1.75} aria-hidden="true" />
+							</A>
+							<Show when={loaded().title.trim().length > 0}>
+								<p class="entry-caption">— {loaded().title}</p>
+							</Show>
+						</div>
 					</article>
 				)}
 			</Show>
-
-			<A
-				href="/"
-				class="post-back"
-				aria-label="타임라인으로"
-				title="타임라인으로"
-				onClick={(event) => {
-					if (didComeFromTimeline()) {
-						event.preventDefault();
-						window.history.back();
-					}
-				}}
-			>
-				<ArrowLeft size={22} stroke-width={1.75} aria-hidden="true" />
-			</A>
 		</section>
 	);
 }
