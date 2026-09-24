@@ -3,6 +3,7 @@ import { A, useParams } from '@solidjs/router';
 import { getPost } from '#/lib/cms';
 import { renderMarkdown } from '#/lib/markdown';
 import { didComeFromTimeline } from '#/lib/navigation';
+import { weekdayOf } from '#/lib/timeline';
 import LoadingHeart from '#/components/LoadingHeart';
 
 export default function PostPage() {
@@ -40,10 +41,12 @@ export default function PostPage() {
 
 			<Show when={post()}>
 				{(loaded) => (
-					<article class="post-article">
-						<p class="entry-date">{loaded().published_at}</p>
+					<article class="scrap scrap-sheet">
+						<p class="scrap-tape">
+							{loaded().published_at.replaceAll('-', '.')} {weekdayOf(loaded().published_at)}
+						</p>
 						<div
-							class="log-body post-body"
+							class="log-body"
 							// eslint-disable-next-line solid/no-innerhtml
 							innerHTML={renderMarkdown(loaded().content)}
 						/>

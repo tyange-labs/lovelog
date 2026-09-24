@@ -13,17 +13,22 @@
 }
 
 @theme {
-	/* 브랜드 색. 헤더(워드마크)와 레일·링크·버튼 같은 가는 포인트에만 쓴다.
-	   본문을 읽는 면적(타임라인 카드·글 본문)에는 쓰지 않는다 — 남색 배경 위 주황
-	   글자가 넓게 깔리면 눈이 금방 피로해진다. */
+	/* 브랜드 색. 헤더(워드마크)와 테이프·스탬프 같은 포인트에만 쓴다.
+	   본문을 읽는 면적에는 쓰지 않는다 — 남색 배경 위 주황 글자가 넓게 깔리면
+	   눈이 금방 피로해진다. */
 	--color-bg: #00466d;
 	--color-accent: #f46016;
 
-	/* 읽는 면. 모노톤 다크로 두고 본문 대비를 확보한다. */
+	/* 바탕. 종이 조각이 놓이는 어두운 책상 면. */
 	--color-paper: #242424;
 	--color-ink: #ece9e4;
 	--color-ink-muted: #8f8a83;
 	--color-shell: #1e1e1e;
+
+	/* 종이 조각(글 카드). 크림색 종이 위 검은 글씨라 본문 대비가 가장 높다. */
+	--color-scrap: #ece9e4;
+	--color-scrap-ink: #1e1e1e;
+	--color-scrap-muted: #5c5750;
 
 	--frame-max-width: 640px;
 
@@ -31,6 +36,7 @@
 		'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui,
 		'Apple SD Gothic Neo', sans-serif;
 	--font-wordmark: 'Determination', 'Courier New', monospace;
+	--font-hand: 'Nanum Pen Script', cursive;
 }
 
 :root {
@@ -139,85 +145,70 @@ body {
 	opacity: 0.9;
 }
 
-/* --- 타임라인: 일기장 레일 ------------------------------------------------
-   왼쪽에 세로선(레일)을 두고, 글은 레일 위 점으로 표시한다. X 같은 아바타·반응
-   버튼 대신 날짜·D+N·간격으로 관계의 리듬을 보여준다. */
+/* --- 타임라인: 스크랩북 ------------------------------------------------------
+   글 하나하나를 어두운 책상 위에 붙인 크림색 종이 조각으로 둔다. 기울기와 좌우
+   어긋남은 글 ID에서 정해지고(scrapPose), 날짜는 오렌지 테이프, 월은 스탬프,
+   글 사이 간격은 손글씨 메모와 실제 여백 크기로 보여준다. 종이 위 글씨 자체는
+   기울기 1.4° 이내라 읽기에 지장이 없다. */
 
 .timeline {
 	display: flex;
 	flex-direction: column;
 }
 
-.month-header,
-.entry,
-.gap-marker {
-	display: grid;
-	grid-template-columns: 1.5rem 1fr;
-	column-gap: 0.75rem;
+.month-stamp-row {
+	display: flex;
+	padding: 1.25rem 0 1rem;
 }
 
-.month-header {
-	position: sticky;
-	top: 3.5rem;
-	z-index: 5;
-	padding-block: 0.5rem;
-	background-color: var(--color-paper);
-	font-family: var(--font-wordmark);
-	font-size: 0.8rem;
-	letter-spacing: 0.08em;
-	color: var(--color-ink-muted);
-}
-
-.month-header > span {
-	grid-column: 2;
-}
-
-.entry-rail {
-	position: relative;
-}
-
-.entry-rail::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 50%;
-	width: 1px;
-	background-color: var(--color-accent);
-	opacity: 0.35;
-	transform: translateX(-50%);
-}
-
-.entry-dot {
-	position: absolute;
-	top: 0.6rem;
-	left: 50%;
-	width: 0.5rem;
-	height: 0.5rem;
-	border-radius: 50%;
-	background-color: var(--color-accent);
-	transform: translate(-50%, -50%);
-}
-
-.entry {
-	padding-block: 1rem;
-}
-
-.entry-main {
-	min-width: 0;
-}
-
-.entry-date {
+.month-stamp {
 	display: inline-block;
-	font-size: 0.75rem;
-	letter-spacing: 0.04em;
-	color: var(--color-ink-muted);
-	text-decoration: none;
+	padding: 0.375rem 0.875rem;
+	border: 2px solid var(--color-accent);
+	border-radius: 4px;
+	font-family: var(--font-wordmark);
+	font-size: 1.125rem;
+	letter-spacing: 0.1em;
+	color: var(--color-accent);
+	transform: rotate(var(--tilt, 0deg));
 }
 
-.entry-date:hover {
-	color: var(--color-ink);
-	text-decoration: underline;
+.scrap {
+	position: relative;
+	width: calc(100% - 2.5rem);
+	margin: 1.25rem 0 0.75rem calc(var(--shift, 0) * 2.5rem);
+	padding: 1.75rem 1.25rem 0.875rem;
+	background-color: var(--color-scrap);
+	color: var(--color-scrap-ink);
+	box-shadow: 0 6px 18px rgb(0 0 0 / 0.45);
+	transform: rotate(var(--tilt, 0deg));
+}
+
+.scrap .log-body {
+	color: var(--color-scrap-ink);
+}
+
+.scrap .log-body a {
+	color: var(--color-bg);
+}
+
+.scrap .log-body blockquote {
+	border-left-color: var(--color-scrap-muted);
+}
+
+.scrap-tape {
+	position: absolute;
+	top: -0.75rem;
+	left: 1.125rem;
+	margin: 0;
+	padding: 0.3rem 0.625rem;
+	background-color: rgb(244 96 22 / 0.92);
+	color: var(--color-scrap-ink);
+	font-family: var(--font-wordmark);
+	font-size: 0.75rem;
+	letter-spacing: 0.06em;
+	text-decoration: none;
+	transform: rotate(-3deg);
 }
 
 /* 긴 글은 2줄에서 말줄임표로 자르고, 나머지는 글 페이지(/p/:id)에서 읽는다.
@@ -228,7 +219,6 @@ body {
 	-webkit-line-clamp: 2;
 	line-clamp: 2;
 	overflow: hidden;
-	margin-top: 0.5rem;
 }
 
 /* 미리보기 안에서 이미지가 한 화면을 다 차지하지 않게 누른다. */
@@ -237,12 +227,17 @@ body {
 	object-fit: cover;
 }
 
+.entry-more-row {
+	display: flex;
+	justify-content: flex-end;
+}
+
 .entry-more {
 	display: inline-block;
-	margin-top: 0.25rem;
-	padding-block: 0.375rem;
-	font-size: 0.8125rem;
-	color: var(--color-accent);
+	padding: 0.25rem 0 0.125rem;
+	font-family: var(--font-hand);
+	font-size: 1.375rem;
+	color: var(--color-scrap-ink);
 	text-decoration: underline;
 	text-underline-offset: 0.25rem;
 }
@@ -252,46 +247,33 @@ body {
 	display: block;
 	-webkit-line-clamp: none;
 	line-clamp: none;
-	margin-top: 0.375rem;
 	font-size: 1.0625rem;
 	line-height: 1.7;
 }
 
 .entry-caption {
-	margin-top: 0.375rem;
-	font-size: 0.8125rem;
+	margin-top: 0.25rem;
+	font-family: var(--font-hand);
+	font-size: 1.25rem;
+	text-align: right;
+	color: var(--color-scrap-muted);
+}
+
+.gap-note {
+	display: flex;
+	align-items: center;
+	padding-inline: 1.75rem;
+}
+
+.gap-note > span {
+	font-family: var(--font-hand);
+	font-size: 1.5rem;
 	color: var(--color-ink-muted);
+	transform: rotate(var(--tilt, 0deg));
 }
 
-.gap-marker {
-	padding-block: 0.75rem;
-}
-
-.gap-rail {
-	position: relative;
-}
-
-.gap-rail::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 50%;
-	width: 1px;
-	background-image: linear-gradient(var(--color-accent) 50%, transparent 0);
-	background-size: 1px 8px;
-	background-repeat: repeat-y;
-	opacity: 0.35;
-	transform: translateX(-50%);
-}
-
-.gap-label {
-	grid-column: 2;
-	font-size: 0.75rem;
-	color: var(--color-ink-muted);
-}
-
-/* --- 글 하나 보기 (/p/:id) ------------------------------------------------ */
+/* --- 글 하나 보기 (/p/:id) ------------------------------------------------
+   긴 글을 끝까지 읽는 화면이라 종이는 기울이지 않고 폭을 다 쓴다. */
 
 .post-back {
 	display: inline-block;
@@ -306,6 +288,8 @@ body {
 	text-decoration: underline;
 }
 
-.post-body {
-	margin-top: 0.75rem;
+.scrap-sheet {
+	width: 100%;
+	margin: 1.5rem 0 0;
+	padding: 2rem 1.25rem 1.25rem;
 }

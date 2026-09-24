@@ -7,7 +7,7 @@
 옮겼다. 화보·전시 안내·RSVP·Chapter 3(인생곡선/포토부스) 같은 청첩장 전용 기능은
 걷어냈다 — 필요하면 git 태그 `wedding-invitation-2026`과 브랜치 히스토리에서 복원할 수 있다.
 
-**현재 단계**: React → SolidJS 전면 재작성. 날짜 레일 위에 글을 늘어놓는 타임라인 하나가
+**현재 단계**: React → SolidJS 전면 재작성. 크림색 종이 조각을 붙여 나가는 스크랩북 타임라인 하나가
 사이트의 전부다. `SHORT_FORM_SINCE`(2026-09-23) 이후에 쓰인 글은 200자 규칙이 적용되는
 짧은 글로 표시한다. **실제 200자 입력 제한은 이 리포가 아니라 글을 쓰는 tyange-cms
 쪽에서 강제한다** — lovelog는 표시만 담당하는 읽기 전용 소비자다.
@@ -42,13 +42,13 @@ src/
   App.tsx            Router + RootLayout(Header + 프레임)
   main.tsx           엔트리 (solid-js/web render)
   routes/
-    Timeline.tsx      메인 페이지: 날짜 레일 타임라인
+    Timeline.tsx      메인 페이지: 스크랩북 타임라인
     PostPage.tsx      /p/:id — 글 하나 퍼머링크(공유용)
   components/
     Header.tsx        sticky 워드마크
-    Entry.tsx          타임라인 한 행 — 지연 로드 + 2줄 미리보기 + 더보기(글 페이지로 이동)
-    MonthHeader.tsx    월 구분 sticky 헤더
-    GapMarker.tsx      글 사이 간격 표시("N일 뒤")
+    Entry.tsx          종이 조각 한 장 — 지연 로드 + 테이프 날짜 + 2줄 미리보기 + 더보기
+    MonthHeader.tsx    월 스탬프
+    GapMarker.tsx      글 사이 손글씨 메모("N일 뒤") + 날수에 비례한 여백
     LoadingHeart.tsx   픽셀 하트 로딩 인디케이터
   lib/
     cms.ts            tyange-cms-api 연동 (getPosts / getPostsCached / getPost / isLovelogPost)
@@ -56,7 +56,7 @@ src/
     navigation.ts     타임라인에서 글 페이지로 들어왔는지 기억 (돌아가기 링크용)
     timeline.ts        순수 함수: gapDays, buildTimelineRows, isShortForm, plainLength
     markdown.ts        marked 래퍼
-  styles.css          디자인 토큰 + 타임라인 레일 스타일
+  styles.css          디자인 토큰 + 스크랩북 스타일
 ```
 
 ## 백엔드
@@ -82,10 +82,23 @@ src/
 
 `https://lovelog.tyange.com`도 이미 허용 목록에 들어가 있다.
 
-## 타임라인 UI — "일기장 레일"
+## 타임라인 UI — "스크랩북"
 
-X(트위터) 타임라인을 그대로 따르지 않는다. 아바타·좋아요·리트윗 같은 반응 UI 대신
-**날짜 레일**로 관계의 리듬을 보여준다.
+X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방향 세 가지(뉴웨이브 레일 / 진·스크랩북
+/ 로그 파일)를 목업으로 비교해 **진·스크랩북**으로 정했다. 어두운 책상(`--color-paper`) 위에
+글마다 크림색 종이 조각(`.scrap`, `--color-scrap`)을 붙이는 형태다.
+
+- **종이 자세는 글 ID로 정한다.** `scrapPose(post_id)`가 기울기(±1.4°)와 좌우 어긋남(0~1)을
+  돌려주고, `Entry`가 `--tilt`/`--shift` CSS 변수로 넘긴다. 목록 순번으로 정하면 새 글이 올라올
+  때마다 아래 글 전부가 자세를 바꾸므로 순번 기반으로 바꾸지 말 것. 기울기를 ±1.4°보다 키우지
+  말 것 — 종이 위 본문 가독성의 한계선이다.
+- 날짜는 오렌지 테이프(`.scrap-tape`, `formatTape` → `8.4 TUE`, Determination 서체)이고 누르면
+  글 페이지로 간다. 월은 오렌지 테두리 스탬프(`.month-stamp`), sticky가 아니다.
+- 글 사이 간격은 손글씨 메모(`.gap-note`, Nanum Pen Script)로, 날수에 비례해 여백 높이가 커진다
+  (`28 + 일수×2`px, 최대 220px). 메모 좌우는 날수에서 뽑는다 — 간격은 짝수 날이 많아서 단순
+  홀짝으로 가르면 한쪽으로 몰린다.
+- 글 페이지(`/p/:id`)는 같은 종이를 기울이지 않고 폭 전체로 깐 `.scrap-sheet`다.
+- 종이 위 링크 색은 오렌지가 아니라 `--color-bg`(네이비)다 — 크림색 위 오렌지는 대비가 부족하다.
 
 - `buildTimelineRows`(`lib/timeline.ts`)가 `posts`(최신순) 하나로 월 구분·글·간격 세 종류의
   행을 만든다. 월이 바뀌면 `month` 행, 인접한 두 글 사이가 하루를 넘으면 `gap` 행을 끼워
@@ -111,7 +124,7 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 아바타·좋아요
   둘 중 하나라도 비동기로 되돌리면 복원 시점에 문서가 짧아 위치가 잘린다.
   글 페이지의 "← 타임라인으로"는 타임라인에서 들어온 경우(`navigation.ts`)에만
   `history.back()`으로 동작해 같은 복원을 탄다. 공유 링크로 바로 들어온 경우엔 그냥 `/`로 간다.
-- 날짜(`M.D`)를 누르면 `/p/:id` 퍼머링크로 이동한다. D+N(디데이) 표시는 넣지 않는다 —
+- D+N(디데이) 표시는 넣지 않는다 —
   결혼 전시 카운트다운의 흔적이라 로그 자체와는 관계가 없다는 판단으로 뺐다.
 - **제목은 위에 내세우지 않는다.** 레거시 글이든 짧은 글이든 똑같이, 제목은(있으면, 빈
   문자열이 아니면) 본문 뒤에 `entry-caption`("— 제목")으로 조용히 붙는다. 캡션은
@@ -133,10 +146,14 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 아바타·좋아요
   **CC BY 3.0이고 재배포 시 원본 아카이브 파일 동반이 조건**이라 `license.txt`,
   `readme.txt`를 같은 폴더에 뒀다. **지우지 말 것.**
   단일 웨이트 픽셀 서체라 `font-bold` 류를 겹치면 합성 볼드로 뭉개진다.
+  테이프 날짜와 월 스탬프에도 쓴다.
+- **손글씨: Nanum Pen Script.** `index.html`에서 Google Fonts로 불러오고 `--font-hand`로 쓴다.
+  "더보기 →", 간격 메모, 제목 캡션에만 쓴다 — 본문에는 쓰지 않는다.
 
 ## 컨벤션
 
-- 색상은 하드코딩하지 말고 `styles.css`의 토큰(`--color-bg`, `--color-accent`, `--color-ink`)을
+- 색상은 하드코딩하지 말고 `styles.css`의 토큰(`--color-bg`, `--color-accent`, `--color-ink`,
+  `--color-scrap*`)을
   쓴다. 디자인 확정 시 토큰만 갈아끼우기 위함이다.
 - 읽기 폭은 `.frame`이 `--frame-max-width`(640px)로 묶고 가운데 정렬하며, 프레임 밖은
   `--color-shell`이다. 청첩장 시절의 430px 모바일 전용 고정폭은 아니다 — 타임라인은
