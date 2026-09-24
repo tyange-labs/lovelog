@@ -9,13 +9,13 @@ import { markFromTimeline } from '#/lib/navigation';
 import { entryElementId } from '#/lib/deeplink';
 import LoadingHeart from './LoadingHeart';
 
-function MoreLink(props: { href: string }) {
+function MoreLink(props: { href: string; label: string }) {
 	return (
 		<A
 			href={props.href}
 			class="entry-more"
-			aria-label="더보기"
-			title="더보기"
+			aria-label={props.label}
+			title={props.label}
 			onClick={markFromTimeline}
 		>
 			<ArrowUpRight size={22} stroke-width={1.75} aria-hidden="true" />
@@ -143,9 +143,10 @@ export default function Entry(props: { post: PostListItem; isTarget?: boolean })
 									innerHTML={loaded().html}
 								/>
 
-								<Show when={!isCompact() && isClamped()}>
+								{/* 짧은 글도 글 페이지(공유 버튼이 있는 곳)로 갈 수 있게 늘 ↗를 둔다. */}
+								<Show when={isCompact() || isClamped()}>
 									<div class="entry-more-row">
-										<MoreLink href={postHref()} />
+										<MoreLink href={postHref()} label={isCompact() ? '글 페이지로' : '더보기'} />
 									</div>
 								</Show>
 							</>
