@@ -18,6 +18,8 @@ export interface PostListItem {
 	title: string;
 	description: string;
 	published_at: string;
+	// cms-api가 2026-09부터 내려주는 UTC ISO 시각("2026-09-24T12:30:00Z"). 파싱 못 한 옛 값은 ''.
+	created_at?: string;
 	tags: Tag[];
 	status: string;
 }

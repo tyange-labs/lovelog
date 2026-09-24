@@ -4,8 +4,9 @@ import ArrowUpRight from 'lucide-solid/icons/arrow-up-right';
 import type { PostListItem } from '#/lib/cms';
 import { loadBody, peekBody } from '#/lib/body';
 import type { PostBody } from '#/lib/body';
-import { formatTape, isShortForm, scrapPose, SHORT_FORM_LIMIT } from '#/lib/timeline';
+import { formatTape, isShortForm, postTime, scrapPose, SHORT_FORM_LIMIT } from '#/lib/timeline';
 import { markFromTimeline } from '#/lib/navigation';
+import { entryElementId } from '#/lib/deeplink';
 import LoadingHeart from './LoadingHeart';
 
 function MoreLink(props: { href: string }) {
@@ -22,7 +23,7 @@ function MoreLink(props: { href: string }) {
 	);
 }
 
-export default function Entry(props: { post: PostListItem }) {
+export default function Entry(props: { post: PostListItem; isTarget?: boolean }) {
 	const pose = () => scrapPose(props.post.post_id);
 	const [body, setBody] = createSignal<PostBody | null>(peekBody(props.post.post_id) ?? null);
 	const [error, setError] = createSignal<string | null>(null);
@@ -83,12 +84,13 @@ export default function Entry(props: { post: PostListItem }) {
 				ref={(el) => {
 					rootRef = el;
 				}}
+				id={entryElementId(props.post.post_id)}
 				class="scrap"
-				classList={{ 'entry-compact': isCompact() }}
+				classList={{ 'entry-compact': isCompact(), 'is-target': props.isTarget }}
 				style={{ '--tilt': `${pose().tilt}deg` }}
 			>
 				<A href={postHref()} class="scrap-tape" onClick={markFromTimeline}>
-					{formatTape(props.post.published_at)}
+					{formatTape(props.post.published_at, postTime(props.post))}
 				</A>
 
 				<Show when={title()}>

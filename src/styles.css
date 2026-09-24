@@ -343,6 +343,54 @@ body {
 	padding: 2rem 1.25rem 1.25rem;
 }
 
+/* 공유: 테이프 맞은편(종이 오른쪽 위) 모서리의 아이콘. 누르면 타임라인 속 이 글의 자리로
+   여는 링크(/?at=<id>)를 공유 시트로 보내거나 복사한다. */
+.post-share {
+	position: absolute;
+	top: 0.25rem;
+	right: 0.25rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	color: var(--color-scrap-muted);
+	transition: color 150ms ease;
+}
+
+.post-share:hover,
+.post-share:focus-visible {
+	color: var(--color-scrap-ink);
+}
+
+/* 공유 링크(/?at=<id>)로 들어왔을 때 그 글을 잠깐 짚어 준다. */
+.scrap.is-target {
+	animation: target-flash 2.4s ease-out 0.2s both;
+}
+
+@keyframes target-flash {
+	0%,
+	35% {
+		box-shadow:
+			0 0 0 3px var(--color-accent),
+			0 6px 18px rgb(0 0 0 / 0.45);
+	}
+	100% {
+		box-shadow:
+			0 0 0 3px transparent,
+			0 6px 18px rgb(0 0 0 / 0.45);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.scrap.is-target {
+		animation: none;
+		box-shadow:
+			0 0 0 3px var(--color-accent),
+			0 6px 18px rgb(0 0 0 / 0.45);
+	}
+}
+
 /* 돌아가기: 글 종이 안에 sticky로 붙은 동그란 버튼. 긴 글을 읽는 동안엔 종이를 따라 화면
    아래에 붙어 다니고, 글 끝에서는 종이 아래 모서리에 걸쳐 멈춘다(중심이 종이 아랫변 위).
    아래로 읽는 중엔 아래로 빠져 숨고, 스크롤을 올리거나 글 끝에 닿으면 떠오른다

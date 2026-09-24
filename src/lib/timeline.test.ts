@@ -4,6 +4,7 @@ import {
 	formatTape,
 	isShortForm,
 	plainLength,
+	postTime,
 	scrapPose,
 	weekdayOf
 } from './timeline';
@@ -63,6 +64,35 @@ describe('weekdayOf / formatTape', () => {
 	it('테이프 라벨은 0 없는 월.일과 요일이다', () => {
 		expect(formatTape('2026-07-05')).toBe('7.5 일');
 		expect(formatTape('2026-12-31')).toBe('12.31 목');
+	});
+
+	it('시각이 있으면 요일 뒤에 붙인다', () => {
+		expect(formatTape('2026-09-24', '21:30')).toBe('9.24 목 21:30');
+		expect(formatTape('2026-09-24', null)).toBe('9.24 목');
+	});
+});
+
+describe('postTime', () => {
+	function timed(published_at: string, created_at?: string): PostListItem {
+		return { ...post(published_at), created_at };
+	}
+
+	it('짧은 글은 created_at(UTC)을 한국 시각으로 옮긴다', () => {
+		expect(postTime(timed('2026-09-24', '2026-09-24T12:30:00Z'))).toBe('21:30');
+	});
+
+	it('UTC로는 전날이어도 한국 날짜가 같으면 시각을 준다', () => {
+		expect(postTime(timed('2026-09-25', '2026-09-24T15:05:00Z'))).toBe('00:05');
+	});
+
+	it('한국 날짜가 published_at과 어긋나면 시각을 뺀다', () => {
+		expect(postTime(timed('2026-09-24', '2026-09-24T15:05:00Z'))).toBeNull();
+	});
+
+	it('기준일 이전 글, created_at이 없거나 비었으면 시각이 없다', () => {
+		expect(postTime(timed('2026-08-04', '2026-08-04T03:00:00Z'))).toBeNull();
+		expect(postTime(timed('2026-09-24'))).toBeNull();
+		expect(postTime(timed('2026-09-24', ''))).toBeNull();
 	});
 });
 

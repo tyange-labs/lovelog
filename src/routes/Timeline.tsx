@@ -1,5 +1,7 @@
-import { createMemo, createResource, For, Show } from 'solid-js';
+import { createEffect, createMemo, createResource, For, onCleanup, Show } from 'solid-js';
+import { useSearchParams } from '@solidjs/router';
 import { getPostsCached } from '#/lib/cms';
+import { claimTarget, entryElementId, holdInView, TARGET_PARAM } from '#/lib/deeplink';
 import { buildTimelineRows } from '#/lib/timeline';
 import type { TimelineRow } from '#/lib/timeline';
 import Entry from '#/components/Entry';
@@ -8,18 +10,30 @@ import LoadingHeart from '#/components/LoadingHeart';
 
 // row.kind에 따라 분기한다. row는 buildTimelineRows가 새 배열을 만들 때마다 새 객체로
 // 나오므로(참조가 바뀌면 다시 그려짐) 평범한 if/else로도 충분하다.
-function TimelineRowView(props: { row: TimelineRow }) {
+function TimelineRowView(props: { row: TimelineRow; target: string | null }) {
 	if (props.row.kind === 'month') {
 		return <MonthHeader month={props.row.month} />;
 	}
 
-	return <Entry post={props.row.post} />;
+	return <Entry post={props.row.post} isTarget={props.row.post.post_id === props.target} />;
 }
 
 export default function Timeline() {
 	// 캐시가 있으면 fetcher가 배열을 동기로 돌려줘 리소스가 로딩 없이 바로 준비된다.
 	const [posts] = createResource(getPostsCached);
 	const rows = createMemo(() => buildTimelineRows(posts() ?? []));
+	const [searchParams] = useSearchParams<{ [TARGET_PARAM]: string }>();
+	const target = claimTarget(searchParams[TARGET_PARAM]);
+
+	createEffect(() => {
+		if (!target || rows().length === 0) {
+			return;
+		}
+		const element = document.getElementById(entryElementId(target));
+		if (element) {
+			onCleanup(holdInView(element));
+		}
+	});
 
 	return (
 		<section class="timeline px-4 py-8">
@@ -38,7 +52,7 @@ export default function Timeline() {
 					when={rows().length > 0}
 					fallback={<p class="rule-b px-4 py-6 text-sm opacity-70">아직 기록이 없어요.</p>}
 				>
-					<For each={rows()}>{(row) => <TimelineRowView row={row} />}</For>
+					<For each={rows()}>{(row) => <TimelineRowView row={row} target={target} />}</For>
 				</Show>
 			</Show>
 		</section>

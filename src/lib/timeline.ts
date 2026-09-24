@@ -44,10 +44,35 @@ export function weekdayOf(publishedAt: string): string {
 	return WEEKDAYS[new Date(toUtcDays(publishedAt) * 86_400_000).getUTCDay()];
 }
 
-// 테이프 라벨: "8.4 화"
-export function formatTape(publishedAt: string): string {
+// 테이프 라벨: "8.4 화", 시각이 있으면 "9.24 수 21:30"
+export function formatTape(publishedAt: string, time?: string | null): string {
 	const [, month, day] = publishedAt.split('-').map(Number);
-	return `${month}.${day} ${weekdayOf(publishedAt)}`;
+	const label = `${month}.${day} ${weekdayOf(publishedAt)}`;
+	return time ? `${label} ${time}` : label;
+}
+
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+// 짧은 글은 하루에 여러 개 올라가므로 시각을 붙인다. published_at은 날짜뿐이라 cms-api의
+// created_at(글을 처음 저장한 UTC 시각)을 한국 시각으로 옮겨 쓴다. 옛 글의 created_at은
+// 이관 시각이라 의미가 없고, 날짜를 따로 고쳐 올린 글은 시각이 날짜와 어긋나므로
+// 짧은 글이면서 한국 날짜가 published_at과 같을 때만 시각을 돌려준다.
+export function postTime(post: PostListItem): string | null {
+	if (!isShortForm(post) || !post.created_at) {
+		return null;
+	}
+
+	const created = Date.parse(post.created_at);
+	if (Number.isNaN(created)) {
+		return null;
+	}
+
+	const kst = new Date(created + KST_OFFSET_MS).toISOString();
+	if (kst.slice(0, 10) !== post.published_at) {
+		return null;
+	}
+
+	return kst.slice(11, 16);
 }
 
 export interface ScrapPose {

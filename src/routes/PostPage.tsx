@@ -4,8 +4,9 @@ import ArrowLeft from 'lucide-solid/icons/arrow-left';
 import { getPost } from '#/lib/cms';
 import { renderMarkdown } from '#/lib/markdown';
 import { didComeFromTimeline } from '#/lib/navigation';
-import { weekdayOf } from '#/lib/timeline';
+import { postTime, weekdayOf } from '#/lib/timeline';
 import LoadingHeart from '#/components/LoadingHeart';
+import ShareButton from '#/components/ShareButton';
 
 // 이 이상 움직여야 방향이 바뀐 것으로 본다. 관성 스크롤의 잔떨림에 버튼이 깜빡이지 않게 한다.
 const SCROLL_THRESHOLD_PX = 4;
@@ -65,8 +66,15 @@ export default function PostPage() {
 				{(loaded) => (
 					<article class="scrap scrap-sheet">
 						<p class="scrap-tape">
-							{loaded().published_at.replaceAll('-', '.')} {weekdayOf(loaded().published_at)}
+							{[
+								loaded().published_at.replaceAll('-', '.'),
+								weekdayOf(loaded().published_at),
+								postTime(loaded())
+							]
+								.filter(Boolean)
+								.join(' ')}
 						</p>
+						<ShareButton postId={loaded().post_id} />
 						<div
 							class="log-body"
 							// eslint-disable-next-line solid/no-innerhtml

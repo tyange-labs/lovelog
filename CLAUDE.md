@@ -49,11 +49,13 @@ src/
     Entry.tsx          종이 조각 한 장 — 테이프 날짜 + (제목 | 지연 로드한 본문 미리보기) + ↗
     MonthHeader.tsx    월 스탬프
     LoadingHeart.tsx   픽셀 하트 로딩 인디케이터
+    ShareButton.tsx    글 페이지의 공유 아이콘 — 타임라인 자리 링크(/?at=<id>)를 공유 시트/복사
   lib/
     cms.ts            tyange-cms-api 연동 (getPosts / getPostsCached / getPost / isLovelogPost)
     body.ts           글 본문 지연 로드 + 캐시 (loadBody / peekBody)
     navigation.ts     타임라인에서 글 페이지로 들어왔는지 기억 (돌아가기 링크용)
-    timeline.ts        순수 함수: buildTimelineRows, isShortForm, plainLength
+    deeplink.ts       공유 링크(/?at=<id>) 만들기 + 도착 시 그 글로 이동·고정
+    timeline.ts        순수 함수: buildTimelineRows, isShortForm, postTime, plainLength
     markdown.ts        marked 래퍼
   styles.css          디자인 토큰 + 스크랩북 스타일
 ```
@@ -134,6 +136,21 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
   (예전엔 `position: fixed`로 화면 모서리에 띄웠는데, 짧은 글에선 종이와 동떨어져 보여 바꿨다.)
   이 버튼은 타임라인에서 들어온 경우(`navigation.ts`)에만
   `history.back()`으로 동작해 같은 복원을 탄다. 공유 링크로 바로 들어온 경우엔 그냥 `/`로 간다.
+- **짧은 글은 테이프에 시각을 붙인다**(`9.24 목 21:30`, 글 페이지는 `2026.09.24 목 21:30`).
+  하루에 여러 개 올라갈 수 있어서다. `published_at`은 날짜뿐이라 cms-api의 `created_at`(글을
+  처음 저장한 UTC 시각, ISO `…Z`)을 한국 시각으로 옮겨 쓴다(`postTime`). 옛 글의 `created_at`은
+  이관 시각이라 무의미하고, 날짜를 따로 고쳐 올린 글은 시각이 어긋나므로 **짧은 글이면서 한국
+  날짜가 `published_at`과 같을 때만** 붙인다. 같은 날 글의 순서는 cms-api가 이미
+  `published_at DESC, created_at DESC`로 맞춰 준다.
+- **공유 링크는 글 페이지가 아니라 타임라인 속 자리로 연다: `/?at=<post_id>`.** 글 페이지 종이
+  오른쪽 위의 공유 아이콘(`ShareButton`, `aria-label="링크 공유"`)이 만든다 — 공유 시트가 있으면
+  공유 시트, 없으면 클립보드 복사(체크 아이콘으로 잠깐 바뀜). 도착하면 `Timeline`이 그 글
+  (`id="post-<id>"`)을 화면 가운데로 옮기고 `is-target`(오렌지 테두리가 잠깐 켜졌다 꺼짐)을
+  붙인다. 위쪽 글 본문이 늦게 들어와 문서가 길어지므로 `holdInView`가 4초 동안(또는 사용자가
+  스크롤을 시작할 때까지) `ResizeObserver`로 자리를 다시 맞춘다 — iOS Safari에 scroll
+  anchoring(`overflow-anchor`)이 없어서 직접 한다. 이동은 **방문당 한 번**(`claimTarget`)이다.
+  링크로 들어와 글을 보고 뒤로 오면 `?at=`이 URL에 남아 있어도 다시 끌어오지 않고 스크롤 복원에
+  맡긴다. `/p/:id` 퍼머링크는 그대로 살아 있다.
 - D+N(디데이) 표시는 넣지 않는다 —
   결혼 전시 카운트다운의 흔적이라 로그 자체와는 관계가 없다는 판단으로 뺐다.
 - **제목이 있는 글은 타임라인에서 제목만 보여준다.** 테이프 날짜 + 제목 한 줄 + ↗ 아이콘이고,
@@ -177,8 +194,9 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
 
 ## 다음 단계
 
-1. **tyange-cms 에디터에 200자 입력 제한 추가** — lovelog 태그가 붙고 작성일이
-   `SHORT_FORM_SINCE`(현재 2026-09-23) 이후인 글에 한해 강제. 별도 작업.
+1. 글 페이지 PNG 추출(공유용 이미지) — 미착수.
+   (tyange-cms 에디터의 200자 제한은 2026-09-24에 들어갔다. 기준일·글자 수·태그 조건은
+   tyange-cms `app/utils/short-form.ts`에도 같은 값이 있으니 **함께 고친다.**)
 2. `og.jpg`가 아직 결혼전시회 시절 이미지다. 타임라인에 맞는 썸네일로 교체할지 판단.
 3. 커버 문구/소개 없이 바로 타임라인으로 들어가는 게 맞는지, 짧은 도입부가 필요한지 미확정.
 
