@@ -1,5 +1,5 @@
 import { getPost } from './cms';
-import { renderMarkdown } from './markdown';
+import { renderPreviewMarkdown } from './markdown';
 import { plainLength } from './timeline';
 
 export interface PostBody {
@@ -30,7 +30,10 @@ export function loadBody(postId: string): Promise<PostBody> {
 			if (!post) {
 				throw new Error('글을 찾을 수 없어요.');
 			}
-			const body = { html: renderMarkdown(post.content), length: plainLength(post.content) };
+			const body = {
+				html: renderPreviewMarkdown(post.content),
+				length: plainLength(post.content)
+			};
 			resolvedBodies.set(postId, body);
 			return body;
 		})

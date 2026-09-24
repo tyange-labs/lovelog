@@ -9,17 +9,12 @@ import { markFromTimeline } from '#/lib/navigation';
 import { entryElementId } from '#/lib/deeplink';
 import LoadingHeart from './LoadingHeart';
 
-function MoreLink(props: { href: string; label: string }) {
+// 미리보기가 잘렸을 때만 붙는 "더 있다" 표시. 링크는 본문 전체가 맡으므로 장식이다.
+function MoreMark() {
 	return (
-		<A
-			href={props.href}
-			class="entry-more"
-			aria-label={props.label}
-			title={props.label}
-			onClick={markFromTimeline}
-		>
-			<ArrowUpRight size={22} stroke-width={1.75} aria-hidden="true" />
-		</A>
+		<span class="entry-more" aria-hidden="true">
+			<ArrowUpRight size={22} stroke-width={1.75} />
+		</span>
 	);
 }
 
@@ -89,9 +84,7 @@ export default function Entry(props: { post: PostListItem; isTarget?: boolean })
 				classList={{ 'entry-compact': isCompact(), 'is-target': props.isTarget }}
 				style={{ '--tilt': `${pose().tilt}deg` }}
 			>
-				<A href={postHref()} class="scrap-tape" onClick={markFromTimeline}>
-					{formatTape(props.post.published_at, postTime(props.post))}
-				</A>
+				<p class="scrap-tape">{formatTape(props.post.published_at, postTime(props.post))}</p>
 
 				<Show when={title()}>
 					<A href={postHref()} class="scrap-title-link" onClick={markFromTimeline}>
@@ -129,26 +122,28 @@ export default function Entry(props: { post: PostListItem; isTarget?: boolean })
 					<Show when={body()}>
 						{(loaded) => (
 							<>
-								{/* 잘렸는지는 줄 수가 아니라 실제 넘침(scrollHeight)으로 판단해 "더보기"를 띄운다. */}
-								<div
-									ref={(el) => {
-										const observer = new ResizeObserver(() => {
-											setIsClamped(el.scrollHeight - el.clientHeight > 1);
-										});
-										observer.observe(el);
-										onCleanup(() => observer.disconnect());
-									}}
-									class="entry-preview log-body"
-									// eslint-disable-next-line solid/no-innerhtml
-									innerHTML={loaded().html}
-								/>
+								{/* 제목 없는 글은 본문 전체가 글 페이지로 가는 링크다. 잘렸는지는 줄 수가 아니라
+								    실제 넘침(scrollHeight)으로 판단해 ↗를 붙인다. */}
+								<A href={postHref()} class="entry-body-link" onClick={markFromTimeline}>
+									<div
+										ref={(el) => {
+											const observer = new ResizeObserver(() => {
+												setIsClamped(el.scrollHeight - el.clientHeight > 1);
+											});
+											observer.observe(el);
+											onCleanup(() => observer.disconnect());
+										}}
+										class="entry-preview log-body"
+										// eslint-disable-next-line solid/no-innerhtml
+										innerHTML={loaded().html}
+									/>
 
-								{/* 짧은 글도 글 페이지(공유 버튼이 있는 곳)로 갈 수 있게 늘 ↗를 둔다. */}
-								<Show when={isCompact() || isClamped()}>
-									<div class="entry-more-row">
-										<MoreLink href={postHref()} label={isCompact() ? '글 페이지로' : '더보기'} />
-									</div>
-								</Show>
+									<Show when={!isCompact() && isClamped()}>
+										<div class="entry-more-row">
+											<MoreMark />
+										</div>
+									</Show>
+								</A>
 							</>
 						)}
 					</Show>
