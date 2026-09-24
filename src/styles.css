@@ -222,9 +222,10 @@ body {
 }
 
 .scrap-title {
-	font-size: 1.0625rem;
-	font-weight: 600;
-	line-height: 1.5;
+	font-size: 1.625rem;
+	font-weight: 700;
+	line-height: 1.3;
+	letter-spacing: -0.02em;
 	color: var(--color-scrap-ink);
 	text-decoration: none;
 }
