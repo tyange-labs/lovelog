@@ -36,6 +36,7 @@
 		'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui,
 		'Apple SD Gothic Neo', sans-serif;
 	--font-wordmark: 'Determination', 'Courier New', monospace;
+	--font-serif: 'Noto Serif KR', 'Apple SD Gothic Neo', serif;
 }
 
 :root {
@@ -104,6 +105,7 @@ body {
 
 .log-body {
 	color: var(--color-ink);
+	font-family: var(--font-serif);
 	line-height: 1.75;
 }
 
@@ -127,6 +129,7 @@ body {
 .log-body h3 {
 	margin-top: 1.5rem;
 	margin-bottom: 0.5rem;
+	font-family: var(--font-sans);
 	font-weight: 700;
 }
 

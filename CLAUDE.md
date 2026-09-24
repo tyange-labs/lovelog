@@ -140,7 +140,12 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
 
 ## 폰트
 
-- **본문 전체: Pretendard.** `index.html`에서 jsDelivr의 **dynamic subset** CSS를 불러온다.
+- **글 본문: Noto Serif KR(본명조).** `.log-body`(타임라인의 본문 미리보기·짧은 글, 글 페이지
+  본문)에만 `--font-serif`로 쓴다. "잘 쓰인 산문"처럼 읽히게 하려고 Pretendard에서 바꿨다.
+  Google Fonts(400·700)로 불러온다 — `unicode-range`로 잘게 나뉘어 필요한 글자만 받는다.
+  Adobe의 Source Han Serif와 같은 디자인이지만, GitHub 릴리스 WOFF2는 한국어 서브셋도
+  한 덩어리 4.75MB라 쓰지 않는다. 본문 안 마크다운 제목(h1~h3)은 Pretendard로 되돌린다.
+- **제목·UI: Pretendard.** 타임라인 큰 제목, `— 제목` 캡션, 마크다운 제목, 그 밖의 UI 글씨. `index.html`에서 jsDelivr의 **dynamic subset** CSS를 불러온다.
   전체 가변 폰트는 2MB, npm 패키지는 93MB/1826파일이라 레포에 넣지 않았다. dynamic subset은
   92조각으로 나뉘어 `unicode-range`로 필요한 것만 받는다. `--font-sans`의 첫 후보는
   패밀리명 그대로 **`Pretendard Variable`**이어야 한다.
