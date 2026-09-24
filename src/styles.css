@@ -213,6 +213,32 @@ body {
 	transform: rotate(-3deg);
 }
 
+/* 제목이 있는 글은 본문 대신 제목 한 줄과 화살표만 둔다. */
+.scrap-title-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+.scrap-title {
+	font-size: 1.0625rem;
+	font-weight: 600;
+	line-height: 1.5;
+	color: var(--color-scrap-ink);
+	text-decoration: none;
+}
+
+.scrap-title:hover {
+	text-decoration: underline;
+	text-underline-offset: 0.25rem;
+}
+
+.scrap-title-row .entry-more {
+	margin: -0.5rem -0.75rem -0.5rem 0;
+	flex-shrink: 0;
+}
+
 /* 긴 글은 2줄에서 말줄임표로 자르고, 나머지는 글 페이지(/p/:id)에서 읽는다.
    line-clamp는 본문 안의 여러 문단에 걸쳐서도 줄을 센다. */
 .entry-preview {

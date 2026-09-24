@@ -8,6 +8,20 @@ import { formatTape, isShortForm, scrapPose, SHORT_FORM_LIMIT } from '#/lib/time
 import { markFromTimeline } from '#/lib/navigation';
 import LoadingHeart from './LoadingHeart';
 
+function MoreLink(props: { href: string }) {
+	return (
+		<A
+			href={props.href}
+			class="entry-more"
+			aria-label="더보기"
+			title="더보기"
+			onClick={markFromTimeline}
+		>
+			<ArrowUpRight size={22} stroke-width={1.75} aria-hidden="true" />
+		</A>
+	);
+}
+
 export default function Entry(props: { post: PostListItem }) {
 	const pose = () => scrapPose(props.post.post_id);
 	const [body, setBody] = createSignal<PostBody | null>(peekBody(props.post.post_id) ?? null);
@@ -17,12 +31,15 @@ export default function Entry(props: { post: PostListItem }) {
 	let rootRef: HTMLElement | undefined;
 
 	const postHref = () => `/p/${props.post.post_id}`;
+	// 제목이 있는 글은 타임라인에서 제목만 보여준다 — 본문은 받아오지도 않는다.
+	// 제목 없는 글(트위터식 짧은 글)만 본문 미리보기로 보여준다.
+	const title = () => props.post.title.trim();
 	const shortForm = () => isShortForm(props.post);
 	// 짧은 글로 쓰였고 실제로도 200자 이내면 자르지 않고 전부 보여준다.
 	// 기준일 이후 글이라도 길게 쓰였다면 레거시 글과 같은 방식(미리보기 + 더보기)으로 처리한다.
 	const isCompact = () => {
 		const loaded = body();
-		return shortForm() && loaded !== null && loaded.length <= SHORT_FORM_LIMIT;
+		return !title() && shortForm() && loaded !== null && loaded.length <= SHORT_FORM_LIMIT;
 	};
 
 	function fetchBody() {
@@ -42,7 +59,7 @@ export default function Entry(props: { post: PostListItem }) {
 	}
 
 	onMount(() => {
-		if (!rootRef || body()) {
+		if (!rootRef || title() || body()) {
 			return;
 		}
 
@@ -73,66 +90,61 @@ export default function Entry(props: { post: PostListItem }) {
 				{formatTape(props.post.published_at)}
 			</A>
 
-			<Show when={isLoading()}>
-				<LoadingHeart />
-			</Show>
-
-			<Show when={error()}>
-				<div class="flex flex-col items-start gap-2 py-2">
-					<p class="text-sm">{error()}</p>
-					<button
-						type="button"
-						class="border border-[var(--color-scrap-ink)] px-3 py-1 text-sm"
-						onClick={() => {
-							setError(null);
-							fetchBody();
-						}}
-					>
-						다시 시도
-					</button>
+			<Show when={title()}>
+				<div class="scrap-title-row">
+					<A href={postHref()} class="scrap-title" onClick={markFromTimeline}>
+						{title()}
+					</A>
+					<MoreLink href={postHref()} />
 				</div>
 			</Show>
 
-			<Show when={body()}>
-				{(loaded) => (
-					<>
-						{/* 제목 캡션은 미리보기 안, 본문 맨 끝에 둔다 — 긴 글은 잘려서 글 페이지에서만 보인다.
-						잘렸는지는 줄 수가 아니라 실제 넘침(scrollHeight)으로 판단해 "더보기"를 띄운다. */}
-						<div
-							ref={(el) => {
-								const observer = new ResizeObserver(() => {
-									setIsClamped(el.scrollHeight - el.clientHeight > 1);
-								});
-								observer.observe(el);
-								onCleanup(() => observer.disconnect());
+			<Show when={!title()}>
+				<Show when={isLoading()}>
+					<LoadingHeart />
+				</Show>
+
+				<Show when={error()}>
+					<div class="flex flex-col items-start gap-2 py-2">
+						<p class="text-sm">{error()}</p>
+						<button
+							type="button"
+							class="border border-[var(--color-scrap-ink)] px-3 py-1 text-sm"
+							onClick={() => {
+								setError(null);
+								fetchBody();
 							}}
-							class="entry-preview"
 						>
+							다시 시도
+						</button>
+					</div>
+				</Show>
+
+				<Show when={body()}>
+					{(loaded) => (
+						<>
+							{/* 잘렸는지는 줄 수가 아니라 실제 넘침(scrollHeight)으로 판단해 "더보기"를 띄운다. */}
 							<div
-								class="log-body"
+								ref={(el) => {
+									const observer = new ResizeObserver(() => {
+										setIsClamped(el.scrollHeight - el.clientHeight > 1);
+									});
+									observer.observe(el);
+									onCleanup(() => observer.disconnect());
+								}}
+								class="entry-preview log-body"
 								// eslint-disable-next-line solid/no-innerhtml
 								innerHTML={loaded().html}
 							/>
-							<Show when={props.post.title.trim().length > 0}>
-								<p class="entry-caption">— {props.post.title}</p>
-							</Show>
-						</div>
 
-						<Show when={!isCompact() && isClamped()}>
-							<div class="entry-more-row">
-								<A
-									href={postHref()}
-									class="entry-more"
-									aria-label="더보기"
-									title="더보기"
-									onClick={markFromTimeline}
-								>
-									<ArrowUpRight size={22} stroke-width={1.75} aria-hidden="true" />
-								</A>
-							</div>
-						</Show>
-					</>
-				)}
+							<Show when={!isCompact() && isClamped()}>
+								<div class="entry-more-row">
+									<MoreLink href={postHref()} />
+								</div>
+							</Show>
+						</>
+					)}
+				</Show>
 			</Show>
 		</article>
 	);
