@@ -78,74 +78,76 @@ export default function Entry(props: { post: PostListItem }) {
 	});
 
 	return (
-		<article
-			ref={(el) => {
-				rootRef = el;
-			}}
-			class="scrap"
-			classList={{ 'entry-compact': isCompact() }}
-			style={{ '--tilt': `${pose().tilt}deg`, '--shift': `${pose().shift}` }}
-		>
-			<A href={postHref()} class="scrap-tape" onClick={markFromTimeline}>
-				{formatTape(props.post.published_at)}
-			</A>
+		<div class="scrap-row" style={{ '--shift': `${pose().shift}` }}>
+			<article
+				ref={(el) => {
+					rootRef = el;
+				}}
+				class="scrap"
+				classList={{ 'entry-compact': isCompact() }}
+				style={{ '--tilt': `${pose().tilt}deg` }}
+			>
+				<A href={postHref()} class="scrap-tape" onClick={markFromTimeline}>
+					{formatTape(props.post.published_at)}
+				</A>
 
-			<Show when={title()}>
-				<div class="scrap-title-row">
-					<A href={postHref()} class="scrap-title" onClick={markFromTimeline}>
-						{title()}
-					</A>
-					<MoreLink href={postHref()} />
-				</div>
-			</Show>
-
-			<Show when={!title()}>
-				<Show when={isLoading()}>
-					<LoadingHeart />
-				</Show>
-
-				<Show when={error()}>
-					<div class="flex flex-col items-start gap-2 py-2">
-						<p class="text-sm">{error()}</p>
-						<button
-							type="button"
-							class="border border-[var(--color-scrap-ink)] px-3 py-1 text-sm"
-							onClick={() => {
-								setError(null);
-								fetchBody();
-							}}
-						>
-							다시 시도
-						</button>
+				<Show when={title()}>
+					<div class="scrap-title-row">
+						<A href={postHref()} class="scrap-title" onClick={markFromTimeline}>
+							{title()}
+						</A>
+						<MoreLink href={postHref()} />
 					</div>
 				</Show>
 
-				<Show when={body()}>
-					{(loaded) => (
-						<>
-							{/* 잘렸는지는 줄 수가 아니라 실제 넘침(scrollHeight)으로 판단해 "더보기"를 띄운다. */}
-							<div
-								ref={(el) => {
-									const observer = new ResizeObserver(() => {
-										setIsClamped(el.scrollHeight - el.clientHeight > 1);
-									});
-									observer.observe(el);
-									onCleanup(() => observer.disconnect());
-								}}
-								class="entry-preview log-body"
-								// eslint-disable-next-line solid/no-innerhtml
-								innerHTML={loaded().html}
-							/>
+				<Show when={!title()}>
+					<Show when={isLoading()}>
+						<LoadingHeart />
+					</Show>
 
-							<Show when={!isCompact() && isClamped()}>
-								<div class="entry-more-row">
-									<MoreLink href={postHref()} />
-								</div>
-							</Show>
-						</>
-					)}
+					<Show when={error()}>
+						<div class="flex flex-col items-start gap-2 py-2">
+							<p class="text-sm">{error()}</p>
+							<button
+								type="button"
+								class="border border-[var(--color-scrap-ink)] px-3 py-1 text-sm"
+								onClick={() => {
+									setError(null);
+									fetchBody();
+								}}
+							>
+								다시 시도
+							</button>
+						</div>
+					</Show>
+
+					<Show when={body()}>
+						{(loaded) => (
+							<>
+								{/* 잘렸는지는 줄 수가 아니라 실제 넘침(scrollHeight)으로 판단해 "더보기"를 띄운다. */}
+								<div
+									ref={(el) => {
+										const observer = new ResizeObserver(() => {
+											setIsClamped(el.scrollHeight - el.clientHeight > 1);
+										});
+										observer.observe(el);
+										onCleanup(() => observer.disconnect());
+									}}
+									class="entry-preview log-body"
+									// eslint-disable-next-line solid/no-innerhtml
+									innerHTML={loaded().html}
+								/>
+
+								<Show when={!isCompact() && isClamped()}>
+									<div class="entry-more-row">
+										<MoreLink href={postHref()} />
+									</div>
+								</Show>
+							</>
+						)}
+					</Show>
 				</Show>
-			</Show>
-		</article>
+			</article>
+		</div>
 	);
 }
