@@ -71,6 +71,13 @@ describe('scrapPose', () => {
 		expect(scrapPose('49e3a590-7bdb')).toEqual(scrapPose('49e3a590-7bdb'));
 	});
 
+	it('끝 글자만 다른 시드도 자리가 한곳에 몰리지 않는다', () => {
+		const months = ['2025.12', '2026.01', '2026.02', '2026.03', '2026.07', '2026.08'];
+		const shifts = months.map((m) => scrapPose(`month:${m}`).shift);
+		expect(Math.max(...shifts) - Math.min(...shifts)).toBeGreaterThan(0.5);
+		expect(new Set(shifts).size).toBeGreaterThanOrEqual(5);
+	});
+
 	it('기울기는 ±1.4°, 어긋남은 0~1 안에 있다', () => {
 		for (const id of ['a', 'b', '49e3a590-7bdb-4b86', '82f75615-e661-4fa4-a9be', '가나다']) {
 			const { tilt, shift } = scrapPose(id);

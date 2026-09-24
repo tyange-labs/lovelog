@@ -89,14 +89,15 @@ X(트위터) 타임라인을 그대로 따르지 않는다. 포스트모던 방�
 
 - **종이 자세는 글 ID로 정한다.** `scrapPose(post_id)`가 기울기(±1.4°)와 좌우 어긋남(0~1)을
   돌려주고, `Entry`가 `--tilt`/`--shift` CSS 변수로 넘긴다. 카드는 내용 너비(`flex: none`)이고,
-  `.scrap-row`의 `::before`/`::after`가 남는 가로 공간을 `shift : (1 − shift)`로 나눠 카드를
+  `.scatter-row`의 `::before`/`::after`가 남는 가로 공간을 `shift : (1 − shift)`로 나눠 카드를
   컬럼 전체에 흩는다 — `margin-left: %`로 바꾸면 오른쪽 끝에서 넘쳐 가로 스크롤이 생긴다. 목록 순번으로 정하면 새 글이 올라올
   때마다 아래 글 전부가 자세를 바꾸므로 순번 기반으로 바꾸지 말 것. 기울기를 ±1.4°보다 키우지
   말 것 — 종이 위 본문 가독성의 한계선이다.
 - 날짜는 오렌지 테이프(`.scrap-tape`, `formatTape` → `8.4 화`)이고 누르면 글 페이지로 간다.
   요일은 한글 한 글자다. 테이프 서체는 Determination인데 한글이 없어 요일만 Pretendard로
   떨어진다(`font-synthesis: none`으로 Determination 합성 볼드를 막는다).
-  월은 오렌지 테두리 스탬프(`.month-stamp`), sticky가 아니다.
+  월은 오렌지 테두리 스탬프(`.month-stamp`), sticky가 아니다. 스탬프도 `scrapPose("month:<YYYY.MM>")`로
+  같은 `.scatter-row`에 흩고, 기울기는 카드의 2.5배(±3.5°)다.
 - **글 사이·월 사이 여백은 날수와 상관없이 일정하다.** "N일 뒤" 같은 표시도, 날수에 비례해
   늘어나는 여백도 두지 않는다 — 둘 다 해봤고 102일 공백 같은 곳에서 화면이 텅 비어 뺐다.
 - "더보기"는 글자 대신 lucide `ArrowUpRight` 아이콘 하나다(hover 시 오른쪽 위로 살짝 움직인다). 스크린리더용

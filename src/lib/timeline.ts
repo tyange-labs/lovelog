@@ -63,6 +63,14 @@ export function scrapPose(seed: string): ScrapPose {
 	for (const ch of seed) {
 		hash = (Math.imul(hash, 31) + ch.charCodeAt(0)) >>> 0;
 	}
+	// MurmurHash3 fmix32. 없으면 끝 글자만 다른 시드("2026.07"/"2026.08")의 상위 비트가 거의
+	// 같아 shift가 한 자리에 몰린다.
+	hash ^= hash >>> 16;
+	hash = Math.imul(hash, 0x85ebca6b);
+	hash ^= hash >>> 13;
+	hash = Math.imul(hash, 0xc2b2ae35);
+	hash ^= hash >>> 16;
+	hash >>>= 0;
 	return {
 		tilt: ((hash % 29) - 14) / 10,
 		shift: ((hash >>> 8) % 101) / 100

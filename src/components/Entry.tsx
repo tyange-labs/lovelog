@@ -78,7 +78,7 @@ export default function Entry(props: { post: PostListItem }) {
 	});
 
 	return (
-		<div class="scrap-row" style={{ '--shift': `${pose().shift}` }}>
+		<div class="scatter-row" style={{ '--shift': `${pose().shift}` }}>
 			<article
 				ref={(el) => {
 					rootRef = el;

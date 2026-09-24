@@ -156,12 +156,11 @@ body {
 }
 
 .month-stamp-row {
-	display: flex;
 	padding: 1.25rem 0 1rem;
 }
 
 .month-stamp {
-	display: inline-block;
+	flex: none;
 	padding: 0.375rem 0.875rem;
 	border: 2px solid var(--color-accent);
 	border-radius: 4px;
@@ -172,23 +171,23 @@ body {
 	transform: rotate(var(--tilt, 0deg));
 }
 
-/* 카드를 컬럼 전체에 흩는다. 카드 자기 너비를 모르는 채로 margin을 %로 주면 오른쪽 끝에서
+/* 카드와 월 스탬프를 컬럼 전체에 흩는다. 카드 자기 너비를 모르는 채로 margin을 %로 주면 오른쪽 끝에서
    넘쳐 가로 스크롤이 생기므로, 한 줄짜리 flex 행의 남는 공간을 shift : (1 - shift)로 나눠
    카드 좌우에 준다. 카드가 넓을수록 남는 공간이 적어 저절로 덜 움직인다. */
-.scrap-row {
+.scatter-row {
 	display: flex;
 }
 
-.scrap-row::before,
-.scrap-row::after {
+.scatter-row::before,
+.scatter-row::after {
 	content: '';
 }
 
-.scrap-row::before {
+.scatter-row::before {
 	flex-grow: var(--shift, 0);
 }
 
-.scrap-row::after {
+.scatter-row::after {
 	flex-grow: calc(1 - var(--shift, 0));
 }
 
