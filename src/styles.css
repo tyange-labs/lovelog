@@ -291,10 +291,14 @@ body {
 	overflow: hidden;
 }
 
-/* 미리보기 안에서 이미지가 한 화면을 다 차지하지 않게 누른다. */
+/* 손글씨 사진은 글씨가 읽혀야 해서 종이 너비를 다 쓰게 두고, 세로로 아주 긴 사진만 누른다. */
 .entry-preview img {
-	max-height: 12rem;
-	object-fit: cover;
+	max-height: 40rem;
+	object-fit: contain;
+}
+
+.scrap:has(.entry-preview img) {
+	width: 100%;
 }
 
 .entry-more-row {
