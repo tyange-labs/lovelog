@@ -1,0 +1,80 @@
+name: Deploy LOVELOG to AWS (Nginx)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: deploy on aws
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate required deployment variables
+        run: |
+          test -n "${{ vars.DEPLOY_PATH }}" || (echo "Missing variable: DEPLOY_PATH" && exit 1)
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Test
+        run: bun run test
+
+      # CMS 주소는 lib/cms.ts에 기본값이 있어 변수를 두지 않아도 빌드는 통과한다.
+      - name: Create production env file
+        if: vars.VITE_CMS_API_BASE != ''
+        run: echo "VITE_CMS_API_BASE=${{ vars.VITE_CMS_API_BASE }}" > .env.production
+
+      # tsc --noEmit을 겸한다.
+      - name: Build
+        run: bun run build
+
+      - name: Upload build via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          source: 'dist'
+          target: '${{ vars.DEPLOY_PATH }}/releases/${{ github.sha }}'
+          strip_components: 0
+          debug: true
+          rm: true
+
+      - name: Switch release and reload Nginx
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          script: |
+            set -e
+            DEPLOY_PATH="${{ vars.DEPLOY_PATH }}"
+            RELEASE_SHA="${{ github.sha }}"
+            RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_SHA/dist"
+
+            # 심볼릭 링크를 옮기기 전에 산출물이 실제로 올라왔는지 확인한다.
+            # 여기서 걸러내지 못하면 빈 디렉터리를 current로 걸어 사이트가 죽는다.
+            test -f "$RELEASE_DIR/index.html"
+
+            mkdir -p "$DEPLOY_PATH"
+            cd "$DEPLOY_PATH"
+            ln -sfn "releases/${RELEASE_SHA}/dist" current
+
+            sudo nginx -t
+            sudo systemctl reload nginx
+
+            # 롤백 여지를 남기고 최근 5개만 보관한다.
+            ls -1dt releases/*/ | tail -n +6 | xargs -r rm -rf
