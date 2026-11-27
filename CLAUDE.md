@@ -215,15 +215,12 @@ body 8px 여백)을 그대로 쓰고, 색 토큰·Pretendard·남색 머리띠�
 ## 배포
 
 `https://lovelog.tyange.com`. `main` 푸시가 곧 배포다 —
-**Forgejo Actions**(`git.tyange.com`)의 `.forgejo/workflows/deploy.yml`이 lint → test → build →
+**GitHub Actions**의 `.github/workflows/deploy.yml`이 lint → test → build →
 SCP → nginx 리로드까지 돌린다. **즉 push가 곧 운영 반영이다.**
 
-- 워크플로는 `.forgejo/workflows`에 있어야 인식된다(`.github/workflows`는 무시됨).
-- `uses:`는 전체 URL(`https://github.com/...`)로 쓴다 — 짧게 쓰면 `data.forgejo.org`에서 찾다가
-  서드파티 액션을 못 찾는다.
-- 러너는 `tyange-labs` 조직 스코프 `self-hosted`인데, 매 job이 새 `node:lts-bookworm` 컨테이너라
-  배포는 `secrets.HOST`(=`127.0.0.1`)로 SSH해 호스트에 쓴다.
-- secrets: `HOST`, `USERNAME`, `LIGHTSAIL_SSH_KEY` / vars: `DEPLOY_PATH`(필수),
-  `VITE_CMS_API_BASE`(선택). 저장소 설정에서 Actions 유닛이 켜져 있어야 한다.
+- 러너는 GitHub 호스팅 `ubuntu-latest`, environment는 `deploy on aws`. Lightsail에 SSH로 올린다.
+- secrets: `HOST`, `USERNAME`, `SSH_PRIVATE_KEY` / vars: `DEPLOY_PATH`(필수),
+  `VITE_CMS_API_BASE`(선택).
+- (2026-11) Forgejo(`git.tyange.com`)와 `.forgejo/workflows`는 없앴다.
 - SCP 단계가 SSH 인증 실패처럼 보여도 `vars.DEPLOY_PATH` 미등록일 수 있다 — 로그에
   "remote server os type is unix"가 찍혔는지부터 볼 것.
