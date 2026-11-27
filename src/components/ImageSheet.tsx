@@ -1,15 +1,13 @@
 import { createSignal, onCleanup, onMount, Show } from 'solid-js';
-import X from 'lucide-solid/icons/x';
-import Download from 'lucide-solid/icons/download';
 import type { Post } from '#/lib/cms';
 import { sharePng } from '#/lib/share';
 import { embeddedFontCss, readAsDataUrl } from '#/lib/font-subset';
 import ShareCard from './ShareCard';
-import LoadingHeart from './LoadingHeart';
+import Loading from './Loading';
 
 const EXPORT_SCALE = 2;
 const IMAGE_FETCH_TIMEOUT_MS = 15_000;
-const CARD_FONTS = ['Pretendard Variable', 'Noto Serif KR', 'Determination'];
+const CARD_FONTS = ['Pretendard Variable'];
 
 function fileNameOf(post: Post): string {
 	return `lovelog-${post.published_at}-${post.post_id.slice(0, 8)}.png`;
@@ -107,43 +105,34 @@ export default function ImageSheet(props: { post: Post; onClose: () => void }) {
 				}
 			}}
 		>
-			<div class="image-sheet-panel">
-				<div class="image-sheet-head">
-					<h2 class="image-sheet-title">이미지로 저장</h2>
-					<button
-						type="button"
-						class="image-sheet-close"
-						aria-label="닫기"
-						onClick={() => dialog?.close()}
-					>
-						<X size={20} stroke-width={2} aria-hidden="true" />
+			<h2>이미지로 저장</h2>
+
+			<Show
+				when={previewUrl()}
+				fallback={
+					<Show when={!failed()}>
+						<Loading />
+					</Show>
+				}
+			>
+				{(url) => (
+					<p>
+						<img src={url()} alt="공유용 이미지 미리보기" />
+					</p>
+				)}
+			</Show>
+			<Show when={failed()}>
+				<p>
+					이미지를 만들지 못했어요.{' '}
+					<button type="button" onClick={render}>
+						다시 시도
 					</button>
-				</div>
+				</p>
+			</Show>
 
-				<div class="image-sheet-preview">
-					<Show
-						when={previewUrl()}
-						fallback={
-							<Show when={!failed()}>
-								<LoadingHeart />
-							</Show>
-						}
-					>
-						{(url) => <img src={url()} alt="공유용 이미지 미리보기" />}
-					</Show>
-					<Show when={failed()}>
-						<div class="flex flex-col items-center gap-3 text-sm">
-							<p>이미지를 만들지 못했어요.</p>
-							<button type="button" class="image-sheet-retry" onClick={render}>
-								다시 시도
-							</button>
-						</div>
-					</Show>
-				</div>
-
+			<p>
 				<button
 					type="button"
-					class="image-sheet-save"
 					disabled={!blob()}
 					onClick={() => {
 						const result = blob();
@@ -152,10 +141,12 @@ export default function ImageSheet(props: { post: Post; onClose: () => void }) {
 						}
 					}}
 				>
-					<Download size={18} stroke-width={2} aria-hidden="true" />
 					저장·공유
+				</button>{' '}
+				<button type="button" onClick={() => dialog?.close()}>
+					닫기
 				</button>
-			</div>
+			</p>
 
 			<div class="share-card-stage" aria-hidden="true">
 				<ShareCard

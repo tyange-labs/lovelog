@@ -75,33 +75,6 @@ export function postTime(post: PostListItem): string | null {
 	return kst.slice(11, 16);
 }
 
-export interface ScrapPose {
-	tilt: number;
-	shift: number;
-}
-
-// 종이 조각의 기울기(-1.4° ~ 1.4°)와 좌우 어긋남(0 ~ 1). 글 ID에서 뽑아 새로고침이나
-// 새 글이 올라와도 같은 글은 늘 같은 자세로 붙어 있게 한다 — 목록 순번으로 정하면 새 글이
-// 올라올 때마다 아래 글들이 전부 자세를 바꾼다.
-export function scrapPose(seed: string): ScrapPose {
-	let hash = 0;
-	for (const ch of seed) {
-		hash = (Math.imul(hash, 31) + ch.charCodeAt(0)) >>> 0;
-	}
-	// MurmurHash3 fmix32. 없으면 끝 글자만 다른 시드("2026.07"/"2026.08")의 상위 비트가 거의
-	// 같아 shift가 한 자리에 몰린다.
-	hash ^= hash >>> 16;
-	hash = Math.imul(hash, 0x85ebca6b);
-	hash ^= hash >>> 13;
-	hash = Math.imul(hash, 0xc2b2ae35);
-	hash ^= hash >>> 16;
-	hash >>>= 0;
-	return {
-		tilt: ((hash % 29) - 14) / 10,
-		shift: ((hash >>> 8) % 101) / 100
-	};
-}
-
 // 마크다운 문법을 걷어내고 순수 글자 수를 센다. 200자 근처인 짧은 글을 접을지 정하는 용도라
 // 완벽한 파서가 아니어도 된다.
 export function plainLength(markdown: string): number {

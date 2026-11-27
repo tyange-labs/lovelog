@@ -6,9 +6,9 @@ import PostPage from '#/routes/PostPage';
 
 function RootLayout(props: { children?: JSX.Element }) {
 	return (
-		<div class="frame min-h-lvh font-sans antialiased">
+		<div class="page">
 			<Header />
-			{props.children}
+			<main>{props.children}</main>
 		</div>
 	);
 }
